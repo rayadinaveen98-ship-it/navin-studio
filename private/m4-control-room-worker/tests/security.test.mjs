@@ -153,3 +153,14 @@ test('CI empty workflow list does not claim build success',async()=>{
  const r=await call(handler,req('/api/projects/backlot/ci'));
  assert.equal(r.body.source_state,'no_runs_found');
 });
+
+test('CI malformed response is unknown rather than invented no-runs outcome',async()=>{
+ const handler=make({githubFetch:async()=>new Response(JSON.stringify({not_workflow_runs:true}),{status:200})});
+ const r=await call(handler,req('/api/projects/backlot/ci'));
+ assert.equal(r.body.source_state,'unavailable');
+});
+test('CI evidence URL must exactly match an integer run ID',async()=>{
+ const handler=make({githubFetch:async()=>new Response(JSON.stringify({workflow_runs:[{id:42,html_url:'https://github.com/rayadinaveen98-ship-it/framebynavin-android/actions/runs/42/extra'}]}),{status:200})});
+ const r=await call(handler,req('/api/projects/backlot/ci'));
+ assert.equal(r.body.source_state,'unavailable');
+});
