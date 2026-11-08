@@ -59,6 +59,10 @@ class LivingArchitectureTests(unittest.TestCase):
         self.assertNotIn("class=\"website\"", body)
         self.assertNotIn("class=\"prototool\"", body)
         self.assertNotIn("id=\"scrub\"", body)
+        script = self.html.split("<script>", 1)[1]
+        self.assertNotIn("$('skipBtn')", script)
+        self.assertNotIn("$('scrub')", script)
+        self.assertNotIn("set(website", script)
         self.assertNotIn("PREVIEW · NOT LIVE", body)
 
     def test_intro_dom_divs_are_balanced(self):
