@@ -156,6 +156,41 @@ async function run(){
   check(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),'Mobile lower-page overflow');
   await evaluate('window.scrollTo({top:0,behavior:"instant"})');
 
+  // Accessibility contract for the visible project view (automated checks;
+  // not a substitute for physical-device or assistive-technology review).
+  const audit=await evaluate(`(() => {
+    const root=document.getElementById('view-project');
+    const elements=[...root.querySelectorAll('button,a[href]')].filter(el => el.getClientRects().length > 0);
+    const missingNames=elements.filter(el => !(el.getAttribute('aria-label') || el.innerText || el.title || '').trim()).map(el => el.outerHTML.slice(0,100));
+    const imagesWithoutAlt=[...root.querySelectorAll('img')].filter(el => !el.hasAttribute('alt')).length;
+    const breadcrumb=root.querySelector('.px-breadcrumb button');
+    const backHeight=breadcrumb?.getBoundingClientRect().height ?? 0;
+    return {headings:root.querySelectorAll('h1').length,missingNames,imagesWithoutAlt,backHeight};
+  })()`);
+  check(audit.headings===1,'Project view must have one semantic h1');
+  check(audit.missingNames.length===0,'Unlabelled project controls: '+JSON.stringify(audit.missingNames));
+  check(audit.imagesWithoutAlt===0,'Project image missing alt attribute');
+  check(audit.backHeight>=44,'Mobile breadcrumb target below 44 CSS pixels: '+audit.backHeight);
+
+  // Non-overflow contract at small-phone and tablet sizes, not only 390px.
+  for(const width of [360,768]){
+    await cdp('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
+    await sleep(160);
+    check(await evaluate('document.documentElement.scrollWidth <= window.innerWidth + 2'),'Project page overflows at '+width+'px');
+  }
+  await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+
+  // Every public catalog entry must resolve into its own editorial project page.
+  const ids=await evaluate('projects.map(project => project.id)');
+  check(ids.length===8,'Public catalog is not eight projects');
+  for(const id of ids){
+    await evaluate('location.hash = '+JSON.stringify('#project/'+id));
+    await until('document.querySelector("#project-story-title")?.textContent === projects.find(p => p.id === '+JSON.stringify(id)+')?.name',2500);
+    check(await evaluate('document.querySelector("#view-project .px-access")?.textContent.includes("No studio-approved public download")'),'Incorrect release status for '+id);
+  }
+  await evaluate('location.hash="#project/frame-one"');
+  await until('document.querySelector("#project-story-title")?.textContent==="Frame One"',2000);
+
   await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   await openSite();
   await until('document.readyState==="complete"');
@@ -169,9 +204,9 @@ async function run(){
 
   await writeFile(path.join(artifacts,'browser-exceptions.json'),JSON.stringify(jsErrors,null,2));
   check(jsErrors.length===0,'Unexpected browser script errors: '+JSON.stringify(jsErrors));
-  const result={ok:true,scenarios:['fresh-entry','desktop-handoff','skip','replay','SPA-route','desktop-project','related-project','browser-history','mobile-handoff','mobile-overflow','mobile-project','reduced-motion','project-deep-link'],uncaughtErrors:jsErrors};
+  const result={ok:true,scenarios:['fresh-entry','desktop-handoff','skip','replay','SPA-route','desktop-project','related-project','browser-history','mobile-handoff','mobile-overflow','mobile-project','mobile-accessibility-contract','small-screen-360','tablet-768','eight-project-routes','reduced-motion','project-deep-link'],uncaughtErrors:jsErrors};
   await writeFile(path.join(artifacts,'browser-smoke.json'),JSON.stringify(result,null,2));
-  console.log('PASS: NAVIN STUDIO V3 + 13 Chrome smoke scenarios.');
+  console.log('PASS: NAVIN STUDIO V3 + 17 Chrome smoke scenarios.');
 }
 try {await run();}
 catch(e){console.error('FAIL:',e.stack||e);console.error('Chrome stderr:',chromeErr.slice(-1300));process.exitCode=1;}
