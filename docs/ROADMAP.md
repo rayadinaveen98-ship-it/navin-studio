@@ -34,21 +34,23 @@
 
 **Important:** the studio currently has **zero owner-approved public APK downloads**. A successful emulator QA run does not authorize release.
 
-## M3 — Premium public project experiences [~] CURRENT
+## M3 — Premium public project experiences [~] CODE MERGED / MANUAL QA PENDING
 
-- [x] Eight cinematic editorial project pages implemented in a **draft review branch**.
+- [x] Eight cinematic editorial project pages merged to `main` after owner visual review ([PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23)).
 - [x] Shareable `#project/<id>` URLs, browser Back/Forward, related project discovery and meaningful source links.
 - [x] Explicit separation between creative intentions and shipped feature claims; accurate no-approved-download disclosure.
 - [x] Responsive layout, reduced-motion style and project-specific visual direction that retains the approved studio identity.
-- [~] Static CI, real Chrome desktop/mobile design QA and screenshot review.
-- [ ] **Owner approves the new project-page visuals.**
-- [ ] Merge M3 PR and verify the actual live site only after owner approval.
+- [x] Static CI and expanded 17-scenario real Chrome desktop/mobile QA passed; screenshots reviewed.
+- [x] Owner approves the reviewed project-page visuals.
+- [x] M3 PR merged as commit `cecb3060c0ff3f762d005bed1ab5c0bdd197c171`; GitHub Pages [publish workflow](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42504957343) succeeded.
+- [ ] Independent public URL browser retrieval / physical Android / screen-reader verification remain outstanding; deployment workflow success alone does not prove those manual checks.
 
-**Review:** [PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [design truth and QA checklist](M3_PROJECT_STORIES.md).
+**Evidence:** [Merged PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [M3 reviewed design / QA](M3_VISUAL_QA.md), [hosted publish workflow](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42504957343).
 
-## M4 — Private Creator Command Center [ ] NEXT MAJOR PRODUCT
+## M4 — Private Creator Command Center [~] ARCHITECTURE & SOURCES IN PROGRESS
 
-- [ ] Lock access model and trusted backend/storage strategy before exposing any control interface.
+- [~] Prepare trusted auth/backend/storage decision before exposing any control interface; [security and product brief](M4_PRIVATE_COMMAND_CENTER.md) drafted.
+- [x] Verify eight cataloged GitHub public repositories and establish [M4 public source inventory and permission contract](M4_SOURCE_INVENTORY.md).
 - [ ] Source-backed project status dashboard with real timestamps, QA links and audit history.
 - [ ] Owner-authorized release review/approval workflow; strict separation from public presentation.
 - [ ] Studio calendar / decisions / roadmap editing only after authenticated storage and permissions are genuinely available.
