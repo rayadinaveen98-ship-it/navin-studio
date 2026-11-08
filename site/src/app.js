@@ -191,40 +191,39 @@ function selectFilter(category) {
 }
 
 function navigate(route) {
-  if (!routes.has(route)) route = 'home';
+  if (!routes.has(route) && !projectRouteMatch(route)) route = 'home';
   if (location.hash.slice(1) !== route) location.hash = route;
   showRoute(route);
 }
 function showRoute(route) {
-  if (!routes.has(route)) route = 'home';
+  const match = projectRouteMatch(route);
+  const project = match ? projects.find(item => item.id === match[1]) : null;
+  const viewName = project ? 'project' : routes.has(route) ? route : 'home';
+  if (project) renderProjectExperience(project);
   document.querySelectorAll('[data-view]').forEach(view => {
-    const active = view.dataset.view === route;
+    const active = view.dataset.view === viewName;
     view.classList.toggle('is-active',active);
     view.toggleAttribute('inert',!active);
   });
   document.querySelectorAll('.nav-link,.mobile-nav a').forEach(link => {
-    const active = link.dataset.route === route;
+    const active = link.dataset.route === (viewName === 'project' ? 'creations' : viewName);
     link.classList.toggle('is-active',active);
     if (active) link.setAttribute('aria-current','page');
     else link.removeAttribute('aria-current');
   });
-  document.title = `${route === 'home' ? 'One universe. Many creations.' : ({creations:'Creations',releases:'Updates',studio:'The Studio',journal:'Journal'}[route])} — NAVIN STUDIO`;
+  document.title = `${project ? project.name : viewName === 'home' ? 'One universe. Many creations.' : ({creations:'Creations',releases:'Updates',studio:'The Studio',journal:'Journal'}[viewName])} — NAVIN STUDIO`;
   mobileNav.hidden = true;
   menuTrigger.setAttribute('aria-expanded','false');
   window.scrollTo({top:0,behavior:'auto'});
 }
 
 function openProject(id) {
-  const p = projects.find(item => item.id === id);
-  if (!p) return;
-  const visual = p.image ? `<img alt="Abstract visual treatment for ${esc(p.name)}" src="${p.image}"/>` : '';
-  dialogContent.innerHTML = `<div class="dialog-art">${visual}</div><div class="dialog-body">
-    <div class="dialog-meta"><span>${esc(p.type)}</span><span class="dialog-status"><span class="small-dot"></span>${esc(p.stage)}</span></div>
-    <h2 id="dialog-title">${esc(p.name)}</h2><p>${esc(p.description)}</p><div class="dialog-divider"></div>
-    <dl class="dialog-details"><div><dt>Creative territory</dt><dd>${esc(p.discipline)}</dd></div><div><dt>What we're exploring</dt><dd>${esc(p.focus)}</dd></div></dl>
-    <div class="dialog-buttons"><a class="button button-primary" href="${esc(p.repo)}" target="_blank" rel="noopener noreferrer">View public source ${icons('arrow-diag')}</a><button class="button button-outline" type="button" data-dialog-close>Back to exploring ${icons('back')}</button></div>
-    <p class="dialog-warning">Preview content only. No approved public download is associated with this project on NAVIN STUDIO yet.</p></div>`;
-  if (!projectDialog.open) projectDialog.showModal();
+  const project = projects.find(item => item.id === id);
+  if (!project) return;
+  if (projectDialog.open) projectDialog.close();
+  if (searchDialog.open) searchDialog.close();
+  navigate('project/' + project.id);
+  requestAnimationFrame(() => document.getElementById('project-story-title')?.focus({preventScroll:true}));
 }
 
 function openSearch() {
@@ -261,6 +260,8 @@ document.addEventListener('click',event => {
   if (filter) {selectedFilter=filter.dataset.filter;renderProjects();return;}
   const project = target.closest('[data-project]');
   if (project) {openProject(project.dataset.project);return;}
+  const copyProject = target.closest('[data-copy-project]');
+  if (copyProject) {copyProjectLink(copyProject.dataset.copyProject);return;}
   const result = target.closest('[data-search-project]');
   if (result) {searchDialog.close();openProject(result.dataset.searchProject);return;}
   if (target.closest('[data-dialog-close]')) {projectDialog.close();return;}
@@ -297,7 +298,13 @@ window.addEventListener('hashchange',()=>showRoute(location.hash.slice(1)));
 
 async function initialize(){
   showRoute(location.hash.slice(1)||'home');
-  try { await initCatalog(); renderProjects(); await initReleases(); }
+  try {
+    await initCatalog();
+    renderProjects();
+    await initReleases();
+    // Hash deep links may arrive before the catalog has loaded.
+    if (location.hash.startsWith('#project/')) showRoute(location.hash.slice(1));
+  }
   catch(err){console.error('Unable to load project catalog',err);
     const message='<p class="catalog-error" role="alert">The public project directory is unavailable. Please reload the page.</p>';
     homeGrid.innerHTML=message; exploreGrid.innerHTML=message;
