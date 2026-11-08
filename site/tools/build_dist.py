@@ -9,7 +9,7 @@ import re
 import shutil
 
 SITE = Path(__file__).resolve().parents[1]
-PUBLIC = ("index.html", "robots.txt", "data/projects.json", "data/releases.json")
+PUBLIC = ("index.html", "robots.txt", "data/projects.json", "data/releases.json", "intro/living-architecture-v3.html")
 
 
 def build(source: Path, output: Path) -> list[Path]:

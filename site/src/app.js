@@ -305,3 +305,73 @@ async function initialize(){
   }
 }
 initialize();
+
+
+/**
+ * Approved Director's Cut / Living Architecture V3 cinematic welcome.
+ * The presentation is intentionally isolated from the public site catalog and
+ * release manifests. No network API, tracking, storage or download changes.
+ */
+const studioIdent = (() => {
+  const shell = document.getElementById('studio-intro-shell');
+  const iframe = document.getElementById('studio-intro-frame');
+  const skip = document.getElementById('studio-intro-skip');
+  const replay = document.getElementById('studio-replay-intro');
+  if (!shell || !iframe || !skip) return {start:()=>{}, finish:()=>{}};
+  let active = false, safetyTimeout = null, previousFocus = null, manualReplay = false;
+  let restoreInert = [];
+  const motionDisabled = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function finish() {
+    if (!active) return;
+    active = false;
+    clearTimeout(safetyTimeout);
+    shell.hidden = true;
+    document.body.classList.remove('studio-intro-active');
+    iframe.src = 'about:blank';
+    shell.style.background = '#030407';
+    restoreInert.forEach(([element,wasInert]) => { element.inert = wasInert; });
+    restoreInert = [];
+    const target = manualReplay && previousFocus && previousFocus.isConnected
+      ? previousFocus : document.getElementById('main-content');
+    if (target && document.activeElement === skip) target.focus({preventScroll:true});
+  }
+
+  function start(isReplay=false) {
+    if (active || motionDisabled()) return;
+    manualReplay = isReplay;
+    previousFocus = document.activeElement;
+    const sections = [
+      document.querySelector('header.site-header'),
+      document.getElementById('main-content'),
+      document.querySelector('footer.site-footer')
+    ].filter(Boolean);
+    restoreInert = sections.map(element => [element,element.inert]);
+    sections.forEach(element => { element.inert = true; });
+    active = true;
+    shell.hidden = false;
+    shell.style.background = '#030407';
+    document.body.classList.add('studio-intro-active');
+    iframe.src = new URL('intro/living-architecture-v3.html', document.baseURI).href;
+    // Fail open for missing iframe, blocked scripts, crashes, or tab throttling.
+    safetyTimeout = window.setTimeout(finish, 6200);
+    skip.focus({preventScroll:true});
+  }
+
+  skip.addEventListener('click', finish);
+  replay?.addEventListener('click',()=>start(true));
+  window.addEventListener('message',event=>{
+    if (!active || event.origin !== location.origin || event.source !== iframe.contentWindow) return;
+    if (event.data?.type === 'NAVIN_STUDIO_INTRO_READY') shell.style.background = 'transparent';
+    if (event.data?.type === 'NAVIN_STUDIO_INTRO_FINISHED') finish();
+  });
+  window.addEventListener('keydown',event=>{
+    if (!active || event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    finish();
+  },true);
+  window.addEventListener('pagehide',finish);
+  return {start,finish};
+})();
+studioIdent.start(false);
