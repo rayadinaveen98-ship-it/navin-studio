@@ -169,8 +169,8 @@ class BinaryInspectionTests(unittest.TestCase):
             if "apksigner" in args[0]:
                 return subprocess.CompletedProcess(
                     args, 0,
-                    "Verifies\\nV2 Signer: certificate SHA-256 digest: " + CERT
-                    + "\\nV2 Signer: certificate DN: CN=Android Debug, O=Android",
+                    "Verifies\nV2 Signer: certificate SHA-256 digest: " + CERT
+                    + "\nV2 Signer: certificate DN: CN=Android Debug, O=Android",
                     "")
             return fake_command(args, **kwargs)
         with tempfile.TemporaryDirectory() as d:
