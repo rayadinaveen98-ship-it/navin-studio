@@ -1,4 +1,4 @@
-# NAVIN STUDIO — M4-C protected read-only API
+# NAVIN STUDIO — M4-C protected read-only API and Control Room
 
 **Status:** local/CI implementation only — NOT deployed, NOT a real signed-in account, NOT a completed private dashboard. This folder is isolated from the public GitHub Pages `site/` build.
 
@@ -20,6 +20,14 @@ Cloudflare Workers Free + Cloudflare Access Free are the first candidate provide
 
 Data sources are the checked-in `site/data/projects.json` and `site/data/releases.json` plus limited public GitHub API queries. Each response has a timestamp and private no-store caching; the upstream cannot be controlled by query strings. Non-GET methods return 405 after owner verification. Unknown routes return 404. Missing security configuration returns 503; no authenticated owner context returns 403.
 
+## Owner-protected read-only UI
+
+The reviewed M4-B Control Room is bundled under `src/control-room-bundle.js` and served through exact GET routes: `/control-room`, `/control-room.js`, and `/control-room.css`. Every resource is checked using the owner Access audience and stable user UUID **before it is sent to the browser**. No Cloudflare Static Assets binding is used because its routing may not propagate `ctx.access` to the Worker.
+
+The UI requests `/api/me`, `/api/overview` and `/api/projects` using same-origin, no-store fetches. Project-specific public GitHub repository and CI queries are initiated only when requested; failed/denied data is cleared instead of shown as live. The UI has no real write capabilities. **This is implemented code and simulated browser QA, not deployed authentication.**
+
+See [M4-C protected UI QA](../../docs/M4C_CONNECTED_UI_QA.md).
+
 ## Run offline tests
 
 Requires Node.js 22+; **no npm dependencies and no network access required**.
@@ -29,7 +37,7 @@ cd private/m4-control-room-worker
 npm run check
 ```
 
-The 27 tests simulate Access context **only inside Node** and verify negative authorization, forged headers, strict API paths, prevention of public/private data confusion, read-only methods, allowlisted GitHub fetch URLs, GitHub failures, source identity checks, evidence timestamping and truthful CI status. These tests DO NOT prove that a real Cloudflare Access app is configured.
+The 38 tests simulate Access context **only inside Node** and verify negative authorization, forged headers, strict API paths, prevention of public/private data confusion, read-only methods, allowlisted GitHub fetch URLs, GitHub failures, source identity checks, evidence timestamping and truthful CI status. These tests DO NOT prove that a real Cloudflare Access app is configured.
 
 The repository's dedicated [M4 CI workflow](../../.github/workflows/m4-private-api-checks.yml) repeats the suite on PRs without cloud credentials or deployment steps.
 
@@ -41,7 +49,7 @@ The repository's dedicated [M4 CI workflow](../../.github/workflows/m4-private-a
 4. Confirm real Access Audience (AUD) and stable `user_uuid` through trusted Access identity context. Configure the Worker environment bindings `ACCESS_AUD` and `OWNER_USER_UUID` after this verification. **Keep real identifiers out of the public repo.**
 5. Independently test the ACTUAL deployment: anonymous, expired/revoked session, wrong Access app AUD, non-owner, copied headers, every preview route/custom domain, direct endpoint URL, CORS, responses after logout.
 6. Review session policy, CSRF for any future mutations, Access cookie flags, denial logging, rate limiting, rate-limit resilience, physical-device browser acceptance, and rollback.
-7. Integrate the visually reviewed M4-B Control Room UI only after the protected backend gate passes, on a protected same-origin surface. Do not publish it as a static unprotected admin route.
+7. **The reviewed M4-B Control Room has been integrated in the Worker source and offline tested.** Do not deploy it or call it secure until the real Access gates above pass. It is never exposed as a public static admin route.
 
 The example `wrangler.example.jsonc` intentionally disables `workers.dev`, omits both required values, and is **not** a deployable Wrangler configuration. There is NO production auth, actual GitHub token, private data store, APK release approval, background monitoring or deployment here.
 
