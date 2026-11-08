@@ -84,7 +84,7 @@ async function run(){
   await snap('desktop-mid-animation.png');
   await until('document.querySelector("#studio-intro-shell")?.hidden===true',8500);
   check(await evaluate('!document.querySelector("header.site-header").inert && !document.getElementById("main-content").inert'),'Main website remained inert');
-  check(await evaluate('document.getElementById("main-content")?.textContent.includes("One universe")'),'Homepage content not visible');
+  check(await evaluate('document.getElementById("hero-title")?.textContent.includes("NAVIN")'),'Homepage content not visible');
   await snap('desktop-real-homepage.png');
 
   await openSite();
