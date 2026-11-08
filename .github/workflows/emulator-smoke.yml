@@ -1,0 +1,71 @@
+name: Android emulator APK smoke test (not release QA)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/emulator-smoke.yml'
+      - 'site/tools/emulator_smoke.py'
+      - 'site/tools/run_emulator_smoke.sh'
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: 'Catalog project id (e.g. cinerelay)'
+        required: true
+        type: string
+      tag:
+        description: 'Exact published GitHub Release tag'
+        required: true
+        type: string
+      asset:
+        description: 'Optional exact APK file name'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  emulator-smoke:
+    name: Install and first launch, no publishing
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RUN_KIND: ${{ github.event_name }}
+      PROJECT_ID: ${{ inputs.project_id }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      APK_ASSET: ${{ inputs.asset }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test emulator smoke inspection helpers
+        run: python3 -m unittest discover -s site/tools/tests -v
+
+      - name: Enable hardware acceleration for ephemeral Android emulator
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Boot Android 35 emulator and test exact GitHub APK
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # pinned v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: true
+          script: bash site/tools/run_emulator_smoke.sh
+
+      - name: Save JSON and emulator screenshot only (never APK)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-smoke-candidate-evidence
+          path: site/reports/emulator/*
+          if-no-files-found: warn
+          retention-days: 7
