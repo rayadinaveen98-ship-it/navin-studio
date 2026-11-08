@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from urllib.error import HTTPError
 
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
@@ -148,6 +149,86 @@ class BinaryInspectionTests(unittest.TestCase):
             with self.assertRaises(InspectionError):
                 fetch_exact_asset(self.packet(), Path(d) / "test.apk",
                                   opener=FakeOpener(final_url="https://127.0.0.1/private"))
+
+    def test_transient_504_uses_only_same_official_asset_id(self):
+        api = f"https://api.github.com/repos/{REPO}/releases/assets/987654"
+        class FallbackOpener:
+            def __init__(self):
+                self.urls = []
+            def open(self, request, timeout=45):
+                self.urls.append(request.full_url)
+                if len(self.urls) == 1:
+                    raise HTTPError(request.full_url, 504, "Gateway Time-out", {}, None)
+                return FakeResponse(PAYLOAD, api)
+        opener = FallbackOpener()
+        packet = self.packet()
+        packet["asset"]["asset_id"] = 987654
+        with tempfile.TemporaryDirectory() as folder:
+            result = fetch_exact_asset(packet, Path(folder) / "download.apk", opener=opener)
+        self.assertTrue(result["integrity_matches_github"])
+        self.assertEqual(opener.urls, [URL, api])
+
+    def test_permanent_403_never_tries_any_fallback(self):
+        class DeniedOpener:
+            def __init__(self):
+                self.calls=0
+            def open(self, request, timeout=45):
+                self.calls += 1
+                raise HTTPError(request.full_url, 403, "Forbidden", {}, None)
+        opener = DeniedOpener()
+        packet = self.packet()
+        packet["asset"]["asset_id"] = 987654
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaises(HTTPError):
+                fetch_exact_asset(packet, Path(folder) / "download.apk", opener=opener)
+        self.assertEqual(opener.calls,1)
+
+    def test_api_metadata_json_never_counts_as_apk(self):
+        api = f"https://api.github.com/repos/{REPO}/releases/assets/987654"
+        class MetadataOpener:
+            def open(self, request, timeout=45):
+                if request.full_url == URL:
+                    raise HTTPError(URL, 504, "Gateway Time-out", {}, None)
+                return FakeResponse(b"{}" , api)
+        packet = self.packet()
+        packet["asset"]["asset_id"] = 987654
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(InspectionError, "size"):
+                fetch_exact_asset(packet, Path(folder) / "download.apk", opener=MetadataOpener())
+
+    def test_wrong_fallback_binary_fails_checksum_without_retry(self):
+        api = f"https://api.github.com/repos/{REPO}/releases/assets/987654"
+        class WrongOpener:
+            def __init__(self):
+                self.calls=0
+            def open(self, request, timeout=45):
+                self.calls+=1
+                if self.calls == 1:
+                    raise HTTPError(URL, 504, "Gateway Time-out", {}, None)
+                return FakeResponse(b"X" * len(PAYLOAD), api)
+        opener = WrongOpener()
+        packet = self.packet()
+        packet["asset"]["asset_id"] = 987654
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(InspectionError, "SHA-256"):
+                fetch_exact_asset(packet, Path(folder) / "download.apk", opener=opener)
+        self.assertEqual(opener.calls,2)
+
+    def test_missing_or_invalid_asset_id_never_uses_rest_fallback(self):
+        class FailingOpener:
+            def __init__(self):
+                self.calls=0
+            def open(self, request, timeout=45):
+                self.calls+=1
+                raise HTTPError(URL, 504, "Gateway Time-out", {}, None)
+        for bad_id in [None, True, -1, "987654"]:
+            packet = self.packet()
+            packet["asset"]["asset_id"] = bad_id
+            opener = FailingOpener()
+            with tempfile.TemporaryDirectory() as folder:
+                with self.assertRaises(HTTPError):
+                    fetch_exact_asset(packet, Path(folder) / "download.apk", opener=opener)
+            self.assertEqual(opener.calls,1)
 
     def test_android_signed_package_parsing(self):
         with tempfile.TemporaryDirectory() as d:
