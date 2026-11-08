@@ -31,6 +31,17 @@ A second check places a random, synthetic QA-only marker in the same application
 - GitHub Actions is read-only and uploads neither APKs nor user data, keystores, tokens, or private credentials.
 - No public `site/data/releases.json` or project approval is changed, even if everything passes.
 
+## Recovery when GitHub's normal APK URL returns HTTP 504
+
+The v0.2.7 browser-download URL intermittently failed on hosted Linux runners. The exact public GitHub release metadata identifies its original `asset_id=646215448` and SHA-256 `3cef2f4a3b7586189f0e6731c5a65f4c82d263190cbfab6c1b8355fc7998c8ab`.
+
+The download verifier now supports an **official GitHub asset API fallback** *only* when the browser-download route encounters a transient HTTP 429/5xx/connection error. It uses that same release's `asset_id` and `Accept: application/octet-stream`, not another repository, unverified mirror, or user-provided URL.
+
+GitHub documents this official alternative at https://docs.github.com/en/rest/releases/assets . A successful 200/302 on the API is NOT enough: the exact original byte size and SHA-256 still must match, followed by normal Android signature checks. A metadata JSON response, wrong binary, invalid redirect, or unrecoverable GitHub error fails closed. This code neither authorizes nor publishes an APK.
+
+The actual emulator persistence check remains **unverified until a fresh run completes and its report is reviewed**. Do not infer a pass from a successful PR unit test.
+
+
 ## After this gate
 
 The remaining items before studio approval are an **authorized test account or isolated backend fixture**, full authenticated Home/OTT/Radar and account-switch QA, *actual* user-data migration tests, physical Android device validation, publisher-signing ownership confirmation, and explicit owner approval of the exact APK.
