@@ -47,3 +47,16 @@ jobs:
           assert not any((root / n).exists() for n in ('wrangler.json', 'wrangler.jsonc', 'wrangler.toml'))
           print('PASS: No deployable Worker configuration, checked auth guards present.')
           PY
+      - name: Package public-only offline source for independent browser review
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: navin-studio-m4-owner-ui-offline-review
+          path: |
+            private/m4-control-room-worker/src/
+            private/m4-control-room-worker/tests/
+            private/m4-control-room-worker/package.json
+            site/data/projects.json
+            site/data/releases.json
+          retention-days: 7
+          if-no-files-found: error
