@@ -1,6 +1,6 @@
 # M3 — Editorial project stories (review build)
 
-**Status:** Implemented in feature branch for visual owner review. **Do not merge to production until approved.**
+**Status:** Owner-approved visual direction; production merge pending final green branch checks. See [M3 visual QA](M3_VISUAL_QA.md).
 
 ## What changes
 
@@ -34,11 +34,11 @@ We keep the approved Director's Cut identity: warm coral light, slate-blue/viole
 
 ## Gate before public deployment
 
-- [ ] Public-site reproducibility and regression tests pass.
-- [ ] Chrome desktop project click, facts, navigation, browser history, share link, and no unauthorized download assertions pass.
-- [ ] Chrome 390px mobile layout and direct-link refresh pass without overflow.
-- [ ] Browser screenshots reviewed against the approved visual language.
-- [ ] **Owner approves the final desktop/mobile layouts.**
+- [x] Public-site reproducibility and regression tests pass.
+- [x] Chrome desktop project click, facts, navigation, browser history, share link, and no unauthorized download assertions pass.
+- [x] Chrome mobile 360px/390px/768px layout and direct-link refresh pass without overflow.
+- [x] Browser screenshots reviewed against the approved visual language.
+- [x] **Owner approves the final desktop/mobile layouts.**
 - [ ] Only then merge into `main` and confirm GitHub Pages.
 
 ## After this milestone
