@@ -1,0 +1,49 @@
+name: M4 private Control Room contract checks
+
+on:
+  pull_request:
+    paths:
+      - 'private/m4-control-room-worker/**'
+      - 'site/data/projects.json'
+      - 'site/data/releases.json'
+      - '.github/workflows/m4-private-api-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'private/m4-control-room-worker/**'
+      - 'site/data/projects.json'
+      - 'site/data/releases.json'
+      - '.github/workflows/m4-private-api-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  secure-read-only-contract:
+    name: Test M4 owner-only API contract (no cloud credentials)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax and negative authorization tests
+        run: |
+          cd private/m4-control-room-worker
+          npm run check
+      - name: Verify no deployment or runtime auth bypass configuration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('private/m4-control-room-worker')
+          api = (root / 'src/index.js').read_text()
+          cfg = (root / 'wrangler.example.jsonc').read_text()
+          assert 'ctx.access.getIdentity()' in api
+          assert 'identity.user_uuid === env.OWNER_USER_UUID' in api
+          assert "ctx.access.aud !== env.ACCESS_AUD" in api
+          assert 'wrangler deploy' not in cfg
+          assert 'access.dev' not in cfg or '// Do not add [access.dev]' in cfg
+          assert 'workers_dev": false' in cfg
+          assert not any((root / n).exists() for n in ('wrangler.json', 'wrangler.jsonc', 'wrangler.toml'))
+          print('PASS: No deployable Worker configuration, checked auth guards present.')
+          PY
