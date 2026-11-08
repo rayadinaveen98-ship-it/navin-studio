@@ -1,0 +1,108 @@
+name: CineRelay APK in-place upgrade smoke (never publish)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/tools/upgrade_smoke.py'
+      - 'site/tools/run_upgrade_smoke.sh'
+      - '.github/workflows/upgrade-smoke.yml'
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: 'Project id in public studio catalog'
+        required: true
+        type: string
+      previous_tag:
+        description: 'Existing published older GitHub Release tag'
+        required: true
+        type: string
+      target_tag:
+        description: 'Existing published target GitHub Release tag'
+        required: true
+        type: string
+      expected_certificate:
+        description: 'Optional source-declared expected signer fingerprint SHA-256'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  upgrade:
+    name: Compare signing lineage and test in-place upgrade on Android 35
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      RUN_KIND: ${{ github.event_name }}
+      PROJECT_ID: ${{ inputs.project_id }}
+      PREVIOUS_TAG: ${{ inputs.previous_tag }}
+      TARGET_TAG: ${{ inputs.target_tag }}
+      EXPECTED_CERT: ${{ inputs.expected_certificate }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify all release and upgrade safety unit tests
+        run: python3 -m unittest discover -s site/tools/tests -v
+
+      - name: Enable KVM for disposable Android emulator
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Boot Android 35 and test previous to target APK upgrade
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # upstream v2 pin
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: true
+          script: bash site/tools/run_upgrade_smoke.sh
+
+      - name: Report independent upgrade evidence
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("site/reports/upgrade/upgrade-result.json")
+          print("## NAVIN STUDIO — Android APK upgrade smoke")
+          print()
+          print("**No APK signing, account login, app-data verification, or owner publication approval was performed.**")
+          if not p.exists():
+              print("No upgrade report was generated; consult emulator logs for environment failure.")
+          else:
+              result=json.loads(p.read_text(encoding="utf-8"))
+              print()
+              print("| Property | Value |")
+              print("| --- | --- |")
+              def safe(v):
+                  return str(v).replace("|", "/").replace("\r", " ").replace("\n", " ")[:120]
+              for label, value in (
+                  ("Project", result.get("project_id")),
+                  ("Result", result.get("state")),
+                  ("Previous", result.get("previous",{}).get("release_tag",result.get("previous_tag"))),
+                  ("Target", result.get("target",{}).get("release_tag",result.get("target_tag"))),
+                  ("Signer match", result.get("upgrade_contract",{}).get("signing_certificates_match_between_apks")),
+                  ("Source cert match", result.get("upgrade_contract",{}).get("source_declared_certificate_match")),
+                  ("Android API", result.get("emulator",{}).get("android_api_level"))
+              ):
+                  print(f"| {safe(label)} | {safe(value)} |")
+          PY
+
+      - name: Preserve JSON report and startup screenshot only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unapproved-cinerelay-upgrade-evidence
+          path: site/reports/upgrade/*
+          if-no-files-found: warn
+          retention-days: 7
