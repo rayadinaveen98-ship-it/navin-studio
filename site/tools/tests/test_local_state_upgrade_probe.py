@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from urllib.error import HTTPError, URLError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from emulator_smoke import EmulatorError
@@ -12,6 +13,7 @@ from local_state_upgrade_probe import (
     APP_PACKAGE, PROBE_FILE, WELCOME_PREF,
     check_installed_version, parse_welcome_version, probe_upgrade_state,
     read_synthetic_probe, read_welcome_version, require_emulator_root,
+    retry_upstream,
     validate_state_flow, write_synthetic_probe
 )
 
@@ -122,6 +124,46 @@ class LocalStateProbeTests(unittest.TestCase):
         self.assertTrue(marker.startswith("STUDIO_QA_"))
         self.assertFalse(any("cinerelay_session" in " ".join(args) for args in invoked))
         self.assertFalse(any("access_token" in " ".join(args) for args in invoked))
+
+    def test_504_upstream_retries_then_succeeds(self):
+        called=[]
+        waits=[]
+        def task():
+            called.append(True)
+            if len(called) < 3:
+                raise HTTPError("https://api.github.com/", 504, "Gateway Time-out", {}, None)
+            return "verified result"
+        self.assertEqual(retry_upstream("metadata", task, pause=waits.append), "verified result")
+        self.assertEqual(len(called),3)
+        self.assertEqual(waits,[1,2])
+
+    def test_401_is_not_retried_or_bypassed(self):
+        called=[]
+        def task():
+            called.append(1)
+            raise HTTPError("https://api.github.com/", 401, "Unauthorized", {}, None)
+        with self.assertRaisesRegex(EmulatorError,"HTTP 401"):
+            retry_upstream("metadata", task, pause=lambda _: None)
+        self.assertEqual(len(called),1)
+
+    def test_persistent_gateway_failure_stays_blocked(self):
+        called=[]
+        def task():
+            called.append(1)
+            raise HTTPError("https://github.com/", 504, "Gateway Time-out", {}, None)
+        with self.assertRaisesRegex(EmulatorError,"APK download unavailable after bounded attempts"):
+            retry_upstream("APK download", task, pause=lambda _: None)
+        self.assertEqual(len(called),3)
+
+    def test_transient_connection_failure_retries_only_bounded(self):
+        count=[0]
+        def task():
+            count[0] += 1
+            if count[0] == 1:
+                raise URLError("temporary")
+            return "ok"
+        self.assertEqual(retry_upstream("metadata", task, pause=lambda _: None), "ok")
+        self.assertEqual(count[0],2)
 
     def test_requires_expected_exact_public_release_pair(self):
         with self.assertRaisesRegex(EmulatorError, "locked"):

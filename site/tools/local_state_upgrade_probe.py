@@ -23,6 +23,7 @@ import subprocess
 import tempfile
 import time
 from xml.etree import ElementTree as ET
+from urllib.error import HTTPError, URLError
 
 from auth_entry_smoke import wait_for_labels
 from emulator_smoke import EmulatorError, launched_monkey, package_crashed, screen_png, shell_adb
@@ -38,6 +39,26 @@ PROBE_FILE = f"/data/user/0/{APP_PACKAGE}/files/navin_studio_synthetic_probe.txt
 EXPECTED_OLD = "v0.2.7"
 EXPECTED_NEW = "v0.2.9"
 TRUSTED_SOURCE_CERT = "17728aedee7361b8c7126c3317bd396fee4dded3ab8790594fde5bd7e0123617"
+
+TRANSIENT_HTTP_CODES = frozenset({429, 500, 502, 503, 504})
+
+
+def retry_upstream(label: str, call, *, pause=time.sleep, attempts: int = 3):
+    """Retry only transient GET failures; never relax source/hash/signature gates."""
+    if attempts < 1 or attempts > 5:
+        raise ValueError("Retry attempts outside bounded safety range")
+    for attempt in range(attempts):
+        try:
+            return call()
+        except (HTTPError, URLError, TimeoutError) as exc:
+            code = exc.code if isinstance(exc, HTTPError) else None
+            transient = code in TRANSIENT_HTTP_CODES or code is None
+            if not transient or attempt == attempts - 1:
+                code_detail = f"HTTP {code}" if code is not None else "connection failure"
+                raise EmulatorError(f"{label} unavailable after bounded attempts ({code_detail})") from exc
+            pause(2 ** attempt)
+    raise EmulatorError(f"{label} retry exhausted")
+
 
 
 def parse_welcome_version(xml: str) -> str:
@@ -147,13 +168,22 @@ def probe_upgrade_state(catalog: dict, *, project: str, old_tag: str,
     """
     if project != "cinerelay" or (old_tag, new_tag) != (EXPECTED_OLD, EXPECTED_NEW):
         raise EmulatorError("Local-state test is locked to CineRelay v0.2.7 -> v0.2.9")
-    previous_packet = prepare_packet(catalog, project, old_tag, fetch=fetch)
-    target_packet = prepare_packet(catalog, project, new_tag, fetch=fetch)
+    def resilient_fetch(url: str):
+        return retry_upstream("GitHub release/tag metadata", lambda: fetch(url), pause=pause)
+
+    previous_packet = prepare_packet(catalog, project, old_tag, fetch=resilient_fetch)
+    target_packet = prepare_packet(catalog, project, new_tag, fetch=resilient_fetch)
     with tempfile.TemporaryDirectory(prefix="navin-studio-local-state-") as tmp:
         folder = Path(tmp)
         old_apk, new_apk = folder / "older.apk", folder / "target.apk"
-        old_digest = fetch_exact_asset(previous_packet, old_apk, opener=opener)
-        new_digest = fetch_exact_asset(target_packet, new_apk, opener=opener)
+        old_digest = retry_upstream(
+            "previous v0.2.7 APK download",
+            lambda: fetch_exact_asset(previous_packet, old_apk, opener=opener),
+            pause=pause)
+        new_digest = retry_upstream(
+            "target v0.2.9 APK download",
+            lambda: fetch_exact_asset(target_packet, new_apk, opener=opener),
+            pause=pause)
         old_identity = read_android_identity(old_apk, apksigner, aapt, run=sdk_run)
         new_identity = read_android_identity(new_apk, apksigner, aapt, run=sdk_run)
         contract = validate_upgrade_pair(old_identity, new_identity, TRUSTED_SOURCE_CERT)
