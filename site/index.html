@@ -446,6 +446,11 @@ searchInput.addEventListener('keydown',event=>{
   }
 });
 document.addEventListener('keydown',event=>{
+  if (event.key === 'Escape') {
+    if (searchDialog.open) searchDialog.close();
+    else if (projectDialog.open) projectDialog.close();
+    return;
+  }
   const typing = ['INPUT','TEXTAREA'].includes(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
   if ((event.key === '/' && !typing) || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k')) {
     event.preventDefault();openSearch();
