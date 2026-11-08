@@ -22,6 +22,8 @@ These are public service offerings, not a guarantee the user's account has a par
 ## Implemented M4-C proof
 
 - Dedicated source folder under `private/m4-control-room-worker/`, outside GitHub Pages.
+- Owner-checked `/control-room`, `/control-room.js` and `/control-room.css` resources; **no Static Assets binding** to bypass identity context.
+- Read-only UI loads authenticated same-origin API responses with timestamps; browser QA is simulated and not evidence of live Access configuration.
 - Explicit allowlisted eight public projects imported from the authoritative site catalog.
 - Server-side default-deny authorization and exact owner/AUD check for **every request**.
 - 5 read-only endpoints: `me`, `overview`, `projects`, per-project repository metadata and latest public CI run.
@@ -47,12 +49,13 @@ These are public service offerings, not a guarantee the user's account has a par
 
 - [x] Public provider feasibility researched with official documentation.
 - [x] Read-only authenticated-by-context API and ownership checks implemented.
-- [x] 27 offline unit/security contract tests pass.
+- [x] 38 offline unit/security/UI contract tests pass.
 - [x] Dedicated CI checks configured.
 - [ ] Owner approves account/provider and configures Access app protected for previews and production.
 - [ ] Real Access identity and audience configured without committing identity identifiers.
 - [ ] Negative-path tests against real deployed endpoints and alternate hostnames.
 - [ ] Owner-reviewed physical-device login and logout tests, accessibility and API audit.
-- [ ] Frontend integration on protected same-origin staging.
+- [x] Frontend integrated into owner-checked Worker sources and rendered with simulated API responses in Chromium; [QA](M4C_CONNECTED_UI_QA.md).
+- [ ] Independent real Cloudflare Access protected-origin frontend integration and authorization tests.
 
 **No deployment / money / credentials / login has been authorized by this ADR.**
