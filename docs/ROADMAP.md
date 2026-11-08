@@ -8,16 +8,16 @@ Legend: [x] completed, [~] in progress, [ ] not started.
 - [x] README and working product brief established.
 - [x] Document public/private boundaries and release gate.
 - [x] Register candidate projects with draft / no-public-release defaults.
-- [~] Review high-fidelity screen directions.
-- [ ] Lock brand name, design system, information architecture and mobile treatment.
+- [x] Review high-fidelity screen directions — web, mobile and command center prototypes accepted on 2026-11-08.
+- [~] Design direction and responsive information architecture approved; working brand name remains provisional.
 
 **Exit gate:** Owner approves realistic desktop/mobile visuals; data and publication policy reviewed.
 
 ## M1 — Public shell
-- [ ] Implement approved responsive design; functional Home/Explore/Project routes.
-- [ ] Accessibility, animations with reduced-motion support, lazy media, empty states.
-- [ ] Validated catalog only displays approved projects.
-- [ ] Mobile and desktop screenshot QA against approved designs.
+- [x] Implement initial approved responsive public web shell, Home/Creations/Updates/Studio/Journal and project detail dialogs (draft PR #5).
+- [~] Accessible skip link, motion preferences and empty states implemented; full screen-reader audit and performance profiling outstanding.
+- [~] Catalog-backed public development previews validated; all software-release links remain unapproved/absent.
+- [~] Local screenshots and interaction smoke tests at 1440px, 390px and 360px passed; deployed-browser and physical-device QA outstanding.
 
 **Exit gate:** Works locally with complete state coverage; no placeholder downloads or fake metrics.
 
@@ -46,3 +46,11 @@ Legend: [x] completed, [~] in progress, [ ] not started.
 
 ## Scope control
 M0/M1 do not grow to include login, AI chat, editable roadmap, e-commerce or paid APIs. Changes require a new product decision note and re-evaluation of delivery risk.
+
+## Current review checkpoint — 2026-11-08
+
+- Approved experience prototypes: public web, mobile-native visual direction, and private Creator Command Center visual direction.
+- **First code milestone:** public website M1 on draft PR #5 (`feature/public-web-m1`). It is **not merged and not deployed**.
+- **QA:** checked-in standalone build reproducibility verified; local responsive interaction checks passed. Browser network navigation limits mean hosted-site testing still needs completion.
+- **Release safety:** 8 candidate project previews; 0 approved public APKs; 0 downloads advertised.
+- **Next engineering gates:** merge only after review, stage on an approved free host, test direct navigation and accessibility, then implement M2 verified release ingestion with owner approval.
