@@ -97,7 +97,7 @@ class LivingArchitectureTests(unittest.TestCase):
     def test_standalone_intro_javascript_parses(self):
         if not shutil.which("node"):
             self.skipTest("Node unavailable in local test environment")
-        scripts = re.findall(r"<script>([\\s\\S]*?)</script>", self.html)
+        scripts = re.findall(r"<script>(.*?)</script>", self.html, flags=re.S)
         self.assertEqual(len(scripts), 1)
         with tempfile.TemporaryDirectory() as tmp:
             script = Path(tmp) / "studio-intro.js"
