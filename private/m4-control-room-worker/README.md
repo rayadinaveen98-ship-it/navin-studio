@@ -37,7 +37,9 @@ cd private/m4-control-room-worker
 npm run check
 ```
 
-The 38 tests simulate Access context **only inside Node** and verify negative authorization, forged headers, strict API paths, prevention of public/private data confusion, read-only methods, allowlisted GitHub fetch URLs, GitHub failures, source identity checks, evidence timestamping and truthful CI status. These tests DO NOT prove that a real Cloudflare Access app is configured.
+The 56 tests include direct-handler security contracts, real loopback HTTP request/response checks, and deterministic staging-probe classification; Access identity remains simulated in Node and verify negative authorization, forged headers, strict API paths, prevention of public/private data confusion, read-only methods, allowlisted GitHub fetch URLs, GitHub failures, source identity checks, evidence timestamping and truthful CI status. These tests DO NOT prove that a real Cloudflare Access app is configured.
+
+For future owner-approved protected staging, run the **anonymous/no-credentials probe** using `npm run probe:anonymous -- https://YOUR-PROTECTED-STAGING-ORIGIN`. Its `403` result is intentionally **inconclusive**, because denying access in Worker code does not independently prove Cloudflare Access was enabled. See the [protected-first staging runbook](../../docs/M4C_STAGING_RUNBOOK.md).
 
 The repository's dedicated [M4 CI workflow](../../.github/workflows/m4-private-api-checks.yml) repeats the suite on PRs without cloud credentials or deployment steps.
 
