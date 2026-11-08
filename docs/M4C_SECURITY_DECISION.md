@@ -49,8 +49,9 @@ These are public service offerings, not a guarantee the user's account has a par
 
 - [x] Public provider feasibility researched with official documentation.
 - [x] Read-only authenticated-by-context API and ownership checks implemented.
-- [x] 38 offline unit/security/UI contract tests pass.
+- [x] 56 offline handler/HTTP/security/UI/access-probe tests pass.
 - [x] Dedicated CI checks configured.
+- [x] Protected-first [staging runbook](M4C_STAGING_RUNBOOK.md) and anonymous HTTP probe committed; no external URL has been probed or deployed.
 - [ ] Owner approves account/provider and configures Access app protected for previews and production.
 - [ ] Real Access identity and audience configured without committing identity identifiers.
 - [ ] Negative-path tests against real deployed endpoints and alternate hostnames.
