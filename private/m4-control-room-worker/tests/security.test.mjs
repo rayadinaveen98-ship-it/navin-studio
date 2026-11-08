@@ -164,3 +164,77 @@ test('CI evidence URL must exactly match an integer run ID',async()=>{
  const r=await call(handler,req('/api/projects/backlot/ci'));
  assert.equal(r.body.source_state,'unavailable');
 });
+
+
+test('protected Control Room HTML, JS and CSS are served only to exact owner identity',async()=>{
+ const handler=make();
+ const specs=[['/control-room','text/html'],['/control-room.js','text/javascript'],['/control-room.css','text/css']];
+ for (const [path,mime] of specs){
+  const denied=await handler(req(path),env,{});
+  assert.equal(denied.status,403);
+  const allowed=await handler(req(path),env,ctx());
+  assert.equal(allowed.status,200);
+  assert.match(allowed.headers.get('content-type'),new RegExp(mime));
+  assert.match(allowed.headers.get('cache-control'),/no-store/);
+  assert.equal(allowed.headers.get('x-frame-options'),'DENY');
+  assert.equal(allowed.headers.get('access-control-allow-origin'),null);
+  assert.ok((await allowed.text()).length>500);
+ }
+});
+
+test('wrong Access audience or user never receives executable UI resources',async()=>{
+ const handler=make();
+ for (const path of ['/control-room','/control-room.js','/control-room.css']){
+  assert.equal((await handler(req(path),env,ctx('wrong-user'))).status,403);
+  assert.equal((await handler(req(path),env,ctx(env.OWNER_USER_UUID,'wrong-audience'))).status,403);
+  assert.equal((await handler(req(path),{ACCESS_AUD:'',OWNER_USER_UUID:''},ctx())).status,503);
+ }
+});
+
+test('served HTML contains no inline script, inline style, or external runtime dependency',async()=>{
+ const response=await make()(req('/control-room'),env,ctx());
+ const html=await response.text();
+ assert.match(html,/<script src="\/control-room\.js" defer><\/script>/);
+ assert.match(html,/<link rel="stylesheet" href="\/control-room\.css">/);
+ assert.ok(!/<script>(?:.|\s)*?<\/script>/.test(html));
+ assert.ok(!/<style[\s>]/.test(html));
+ assert.ok(!/\sstyle="/.test(html));
+ assert.ok(!/<(?:script|link)[^>]*https?:\/\//.test(html));
+ assert.ok(!html.includes('Private data sync</div>'));
+ const csp=response.headers.get('content-security-policy');
+ assert.match(csp,/script-src 'self'/);
+ assert.match(csp,/style-src 'self'/);
+ assert.match(csp,/connect-src 'self'/);
+ assert.ok(!csp.includes('unsafe-inline'));
+ assert.ok(!csp.includes('unsafe-eval'));
+});
+
+test('protected JS uses only same-origin owner API; no saved tokens, approvals or fake login',async()=>{
+ const response=await make()(req('/control-room.js'),env,ctx());
+ const js=await response.text();
+ assert.match(js,/credentials:'same-origin'/);
+ assert.match(js,/cache:'no-store'/);
+ assert.match(js,/async function refreshProtected/);
+ assert.match(js,/Source verification unavailable/);
+ assert.match(js,/Owner session unavailable/);
+ assert.match(js,/data-fetch-evidence/);
+ assert.ok(!js.includes('localStorage.'));
+ assert.ok(!js.includes('Authorization: Bearer'));
+ assert.ok(!js.includes('approveRelease('));
+ assert.ok(!js.includes('signIn('));
+});
+
+test('non-GET methods and query variants cannot access owner UI',async()=>{
+ const handler=make();
+ for(const path of ['/control-room','/control-room.js','/control-room.css']){
+  assert.equal((await handler(req(path,'POST'),env,ctx())).status,405);
+  assert.equal((await handler(req(path+'?bypass=1'),env,ctx())).status,400);
+ }
+});
+
+test('unknown dashboard routes stay 404, never fall back to unprotected static assets',async()=>{
+ const handler=make();
+ for(const path of ['/control-room/index.html','/control-room/preview','/assets/control-room.js','/private','/control-room.css.map']){
+  assert.equal((await handler(req(path),env,ctx())).status,404);
+ }
+});
