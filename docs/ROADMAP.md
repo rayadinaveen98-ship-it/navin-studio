@@ -47,13 +47,15 @@
 
 **Evidence:** [Merged PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [M3 reviewed design / QA](M3_VISUAL_QA.md), [hosted publish workflow](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42504957343).
 
-## M4 — Private Creator Command Center [~] ARCHITECTURE & SOURCES IN PROGRESS
+## M4 — Private Creator Command Center [~] M4-B INTERACTIVE DESIGN REVIEW
 
 - [~] Prepare trusted auth/backend/storage decision before exposing any control interface; [security and product brief](M4_PRIVATE_COMMAND_CENTER.md) drafted.
 - [x] Verify eight cataloged GitHub public repositories and establish [M4 public source inventory and permission contract](M4_SOURCE_INVENTORY.md).
 - [ ] Source-backed project status dashboard with real timestamps, QA links and audit history.
 - [ ] Owner-authorized release review/approval workflow; strict separation from public presentation.
 - [ ] Studio calendar / decisions / roadmap editing only after authenticated storage and permissions are genuinely available.
+- [x] M4-B standalone interactive desktop/mobile Control Room prototype committed on the draft branch (not public website, not authenticated). [Design brief, browser QA and review gate](M4_VISUAL_REVIEW.md).
+- [~] Chromium design review passes at 1440/768/390/360/320px; owner visual sign-off, file-open, screen-reader and physical-device QA remain pending.
 - [ ] Desktop/mobile design approval and realistic operational testing.
 
 **Hard boundary:** a public static page with a client-side password or hidden route **is not** an acceptable owner-only command center.
