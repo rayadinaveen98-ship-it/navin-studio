@@ -29,7 +29,7 @@ cd private/m4-control-room-worker
 npm run check
 ```
 
-The 25 tests simulate Access context **only inside Node** and verify negative authorization, forged headers, strict API paths, prevention of public/private data confusion, read-only methods, allowlisted GitHub fetch URLs, GitHub failures, source identity checks, evidence timestamping and truthful CI status. These tests DO NOT prove that a real Cloudflare Access app is configured.
+The 27 tests simulate Access context **only inside Node** and verify negative authorization, forged headers, strict API paths, prevention of public/private data confusion, read-only methods, allowlisted GitHub fetch URLs, GitHub failures, source identity checks, evidence timestamping and truthful CI status. These tests DO NOT prove that a real Cloudflare Access app is configured.
 
 The repository's dedicated [M4 CI workflow](../../.github/workflows/m4-private-api-checks.yml) repeats the suite on PRs without cloud credentials or deployment steps.
 
