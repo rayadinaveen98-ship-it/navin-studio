@@ -1,0 +1,50 @@
+name: NAVIN STUDIO V3 real-browser smoke
+
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - '.github/workflows/studio-intro-browser.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cinematic-opening-browser:
+    name: Verify approved V3 in actual Chrome (desktop/mobile)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify committed standalone website and browser test syntax
+        run: |
+          python3 site/build.py --check
+          node --check site/src/app.js
+          node --check site/tests/intro_browser_smoke.mjs
+      - name: Boot website and test cinematic intro through Chrome DevTools Protocol
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || true)"
+          if [[ -z "$CHROME_BIN" ]]; then
+            echo "::error::Chrome or Chromium not present on GitHub-hosted runner"
+            exit 1
+          fi
+          echo "Browser: $CHROME_BIN"
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory site >/tmp/studio-test-http.log 2>&1 &
+          web_pid="$!"
+          trap 'kill "$web_pid" 2>/dev/null || true' EXIT
+          sleep 2
+          CHROME_BIN="$CHROME_BIN" STUDIO_TEST_ARTIFACTS=site/qa-intro-evidence node site/tests/intro_browser_smoke.mjs
+      - name: Upload screenshots and browser assertions (no user data)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: navin-studio-v3-live-browser-qa
+          path: site/qa-intro-evidence/
+          if-no-files-found: warn
+          retention-days: 14
