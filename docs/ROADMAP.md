@@ -47,7 +47,7 @@
 
 **Evidence:** [Merged PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [M3 reviewed design / QA](M3_VISUAL_QA.md), [hosted publish workflow](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42504957343).
 
-## M4 — Private Creator Command Center [~] M4-B INTERACTIVE DESIGN REVIEW
+## M4 — Private Creator Command Center [~] M4-C SECURE BACKEND FOUNDATION
 
 - [~] Prepare trusted auth/backend/storage decision before exposing any control interface; [security and product brief](M4_PRIVATE_COMMAND_CENTER.md) drafted.
 - [x] Verify eight cataloged GitHub public repositories and establish [M4 public source inventory and permission contract](M4_SOURCE_INVENTORY.md).
@@ -55,6 +55,12 @@
 - [ ] Owner-authorized release review/approval workflow; strict separation from public presentation.
 - [ ] Studio calendar / decisions / roadmap editing only after authenticated storage and permissions are genuinely available.
 - [x] M4-B standalone interactive desktop/mobile Control Room prototype committed on the draft branch (not public website, not authenticated). [Design brief, browser QA and review gate](M4_VISUAL_REVIEW.md).
+- [x] M4-B visual direction accepted for further development after actual desktop/mobile browser screenshot review; final physical-device/screen-reader acceptance still pending.
+- [x] M4-C zero-cost-first [protected API architecture](M4C_SECURITY_DECISION.md) researched against Cloudflare documentation.
+- [x] Dedicated read-only Worker API scaffold with exact Access app audience + stable owner UUID checks, public catalog read-model, narrow public GitHub source/CI endpoints and no write operations.
+- [x] 25 offline negative-auth/source integrity tests and dedicated GitHub PR CI; no production credentials or deployment.
+- [ ] Configure real Cloudflare Access protected staging on a separately authorized owner account and test every production/preview route and session edge case (account setup requires approval).
+- [ ] Connect M4-B UI to secured API only after actual authorization checks pass; no fake live KPI data.
 - [~] Chromium design review passes at 1440/768/390/360/320px; owner visual sign-off, file-open, screen-reader and physical-device QA remain pending.
 - [ ] Desktop/mobile design approval and realistic operational testing.
 
