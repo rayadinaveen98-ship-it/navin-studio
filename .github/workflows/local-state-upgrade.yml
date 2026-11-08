@@ -7,6 +7,8 @@ on:
       - '.github/workflows/local-state-upgrade.yml'
       - 'site/tools/local_state_upgrade_probe.py'
       - 'site/tools/run_local_state_upgrade_probe.sh'
+      - 'site/tools/inspect_apk.py'
+      - 'site/tools/release_review.py'
   workflow_dispatch:
 
 permissions:
