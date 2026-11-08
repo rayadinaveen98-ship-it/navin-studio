@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from upgrade_smoke import EmulatorError, installed_version_from_dumpsys, validate_upgrade_pair, upgrade_smoke
+from upgrade_smoke import EmulatorError, check_visible_app_hierarchy, installed_version_from_dumpsys, validate_upgrade_pair, upgrade_smoke
 
 PACKAGE = "com.cinerelay.app"
 CERT = "a" * 64
@@ -85,9 +85,12 @@ def fake_android_tools(args, **_kwargs):
 
 
 class FakeAdb:
-    def __init__(self):
+    def __init__(self, ui_xml=None):
         self.version = None
         self.calls = []
+        self.ui_xml = ui_xml if ui_xml is not None else (
+            '<hierarchy><node package="com.cinerelay.app" text="Sign in"/></hierarchy>'
+        )
 
     def __call__(self, args, **_kwargs):
         self.calls.append(args)
@@ -108,6 +111,8 @@ class FakeAdb:
             output = "1400\n"
         elif key[:3] == ["shell", "logcat", "-d"]:
             output = "No app-specific fatal errors\n"
+        elif key[:3] == ["shell", "cat", "/sdcard/studio-visible-ui.xml"]:
+            output = self.ui_xml
         elif key[:3] == ["exec-out", "screencap", "-p"]:
             return subprocess.CompletedProcess(args, 0, b"\x89PNG\r\n\x1a\n" + b"test", b"")
         return subprocess.CompletedProcess(args, 0, output, "")
@@ -144,6 +149,50 @@ class UpgradeTests(unittest.TestCase):
     def test_missing_version_from_adb_blocks(self):
         with self.assertRaises(EmulatorError):
             installed_version_from_dumpsys("Package not found")
+
+    def test_visible_app_hierarchy_is_clear(self):
+        check_visible_app_hierarchy(
+            '<hierarchy><node package="com.cinerelay.app" text="Welcome"/></hierarchy>',
+            PACKAGE)
+
+    def test_pixel_launcher_anr_dialog_blocks(self):
+        xml = ('<hierarchy><node package="android" '
+               'text="Pixel Launcher isn&apos;t responding"/></hierarchy>')
+        with self.assertRaisesRegex(EmulatorError, "not responding"):
+            check_visible_app_hierarchy(xml, PACKAGE)
+
+    def test_system_ui_is_not_responding_dialog_blocks(self):
+        xml = ('<hierarchy><node package="com.cinerelay.app" '
+               'text="System UI is not responding"/></hierarchy>')
+        with self.assertRaisesRegex(EmulatorError, "not responding"):
+            check_visible_app_hierarchy(xml, PACKAGE)
+
+    def test_not_our_foreground_app_blocks(self):
+        xml = '<hierarchy><node package="com.android.launcher" text="Home"/></hierarchy>'
+        with self.assertRaisesRegex(EmulatorError, "target app"):
+            check_visible_app_hierarchy(xml, PACKAGE)
+
+    def test_empty_visible_tree_blocks(self):
+        with self.assertRaisesRegex(EmulatorError, "hierarchy unavailable"):
+            check_visible_app_hierarchy("UI tree could not be retrieved", PACKAGE)
+
+    def test_end_to_end_system_dialog_blocks_before_screenshot(self):
+        with tempfile.TemporaryDirectory() as d:
+            folder = Path(d)
+            signer, aapt = folder / "apksigner", folder / "aapt"
+            signer.write_text("fixture")
+            aapt.write_text("fixture")
+            adb = FakeAdb(ui_xml=(
+                '<hierarchy><node package="android" '
+                'text="Pixel Launcher isn&apos;t responding"/></hierarchy>'))
+            with self.assertRaisesRegex(EmulatorError, "not responding"):
+                upgrade_smoke(
+                    CATALOG, "cinerelay", "v0.2.7", "v0.2.9",
+                    signer, aapt, folder / "screen.png",
+                    expected_cert=CERT, fetch=github_fetch,
+                    opener=BinaryOpener(), sdk_run=fake_android_tools,
+                    adb_run=adb, pause=lambda _: None)
+            self.assertFalse((folder / "screen.png").exists())
 
     def test_same_release_tag_rejected(self):
         with tempfile.TemporaryDirectory() as d:

@@ -8,6 +8,7 @@ full functional QA, a trusted publisher, or permission for a public release.
 from __future__ import annotations
 
 import argparse
+from html import unescape
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -71,6 +72,27 @@ def installed_version_from_dumpsys(output: str) -> int:
     return int(match.group(1))
 
 
+SYSTEM_ANR_RE = re.compile(
+    r"(?:isn['’]t|is\s+not)\s+responding|(?:app|application)\s+not\s+responding",
+    re.I,
+)
+
+
+def check_visible_app_hierarchy(xml: str, package_id: str) -> None:
+    """Fail closed on a system ANR dialog, inaccessible tree or non-app screen.
+
+    This screens for obvious Android system overlays; it does not replace
+    screenshot review, accessibility testing, or real feature QA.
+    """
+    rendered = unescape(xml)
+    if "<hierarchy" not in rendered or "<node" not in rendered:
+        raise EmulatorError("Android visible UI hierarchy unavailable")
+    if SYSTEM_ANR_RE.search(rendered):
+        raise EmulatorError("System 'not responding' dialog obscures app")
+    if f'package="{package_id}"' not in rendered:
+        raise EmulatorError("Visible UI hierarchy does not contain target app")
+
+
 def upgrade_smoke(catalog: dict, project_id: str, previous_tag: str,
                   target_tag: str, apksigner: Path, aapt: Path, screenshot: Path,
                   *, expected_cert: str | None = None, fetch=github_json,
@@ -125,6 +147,11 @@ def upgrade_smoke(catalog: dict, project_id: str, previous_tag: str,
         logs = shell_adb(["logcat", "-d", "-t", "1200"], adb_run)
         if package_crashed(logs, pkg):
             raise EmulatorError("Target app has a launch fatal exception")
+        shell_adb(["shell", "uiautomator", "dump", "/sdcard/studio-visible-ui.xml"],
+                  adb_run, timeout=75)
+        hierarchy = shell_adb(["shell", "cat", "/sdcard/studio-visible-ui.xml"],
+                              adb_run, timeout=30)
+        check_visible_app_hierarchy(hierarchy, pkg)
         screenshot.parent.mkdir(parents=True, exist_ok=True)
         screenshot.write_bytes(screen_png(adb_run))
 
@@ -158,6 +185,8 @@ def upgrade_smoke(catalog: dict, project_id: str, previous_tag: str,
             "target_app_launched": True,
             "target_process_survived_startup": True,
             "target_app_fatal_exception_absent_in_sampled_logs": True,
+            "visible_app_accessibility_tree_checked": True,
+            "system_not_responding_dialog_absent_during_check": True,
             "screenshot_captured": True,
             "application_user_data_contents_verified": False,
             "authenticated_user_journeys_verified": False,
