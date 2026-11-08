@@ -13,10 +13,13 @@ sys.path.insert(0, str(TOOLS))
 from release_watch import candidate_report
 from verify_release_assets import audit
 from build_dist import build
+from release_review import prepare_packet
+from release_source import resolve_tag_commit
 
 REPO = "rayadinaveen98-ship-it/example"
 URL = f"https://github.com/{REPO}/releases/download/v1/example.apk"
 DIGEST = "a" * 64
+SOURCE_SHA = "c" * 40
 PROJECT = {"id": "demo", "name": "Demo", "repository": REPO,
            "catalog_state": "draft", "published_release_tag": None,
            "approved_download_url": None}
@@ -25,6 +28,14 @@ RELEASE = {"tag_name": "v1", "draft": False, "prerelease": False,
            "published_at": "2026-11-08T00:00:00Z", "html_url": f"https://github.com/{REPO}/releases/tag/v1",
            "assets": [{"name": "example.apk", "size": 9123, "state": "uploaded",
                        "browser_download_url": URL, "digest": f"sha256:{DIGEST}"}]}
+
+
+def public_release_fetch(url):
+    if "/releases/tags/v1" in url:
+        return RELEASE
+    if "/git/ref/tags/v1" in url:
+        return {"ref": "refs/tags/v1", "object": {"type": "commit", "sha": SOURCE_SHA}}
+    raise AssertionError("Unexpected GitHub endpoint " + url)
 
 
 class ReleaseWatchTests(unittest.TestCase):
@@ -54,12 +65,13 @@ class PublishedAssetTests(unittest.TestCase):
                         "published_release_tag": "v1", "approved_download_url": URL}
         self.row = {"project_id": "demo", "release_tag": "v1",
                     "download_url": URL, "sha256": DIGEST,
+                    "source_commit": SOURCE_SHA,
                     "approved": True, "qa_passed": True, "signature_checked": True}
 
     def test_published_exact_asset_passes(self):
         self.assertEqual(audit({"schema_version": 1, "projects": [self.project]},
                                {"schema_version": 1, "published_releases": [self.row]},
-                               lambda _: RELEASE), [])
+                               public_release_fetch), [])
 
     def test_wrong_checksum_fails_closed(self):
         changed = {**self.row, "sha256": "b" * 64}
@@ -77,6 +89,69 @@ class PublishedAssetTests(unittest.TestCase):
     def test_no_release_requires_no_network(self):
         self.assertEqual(audit(CATALOG, {"schema_version": 1, "published_releases": []},
                                lambda _: (_ for _ in ()).throw(RuntimeError("should not fetch"))), [])
+
+
+class ProvenanceAndPacketTests(unittest.TestCase):
+    def test_lightweight_tag_resolves(self):
+        self.assertEqual(resolve_tag_commit(REPO, "v1", public_release_fetch), SOURCE_SHA)
+
+    def test_annotated_tag_resolves(self):
+        tag_sha = "d" * 40
+        def fetch(url):
+            if "/git/ref/tags/v1" in url:
+                return {"ref": "refs/tags/v1", "object": {"type": "tag", "sha": tag_sha}}
+            if "/git/tags/" in url:
+                return {"sha": tag_sha, "object": {"type": "commit", "sha": SOURCE_SHA}}
+            raise AssertionError(url)
+        self.assertEqual(resolve_tag_commit(REPO, "v1", fetch), SOURCE_SHA)
+
+    def test_tag_url_refuses_untrusted_identifiers(self):
+        for tag in ("../secret", "v1/bad", "%2F", ""):
+            with self.assertRaises(ValueError):
+                resolve_tag_commit(REPO, tag, public_release_fetch)
+
+    def test_packet_includes_provenance_but_no_approval(self):
+        packet = prepare_packet(CATALOG, "demo", "v1", fetch=public_release_fetch,
+                                checked_at="2026-11-08T00:00:00Z")
+        self.assertEqual(packet["state"], "CANDIDATE_ONLY_NOT_APPROVED")
+        self.assertEqual(packet["source_commit"], SOURCE_SHA)
+        self.assertEqual(packet["asset"]["github_reported_sha256"], DIGEST)
+        self.assertFalse(packet["required_manual_evidence"]["owner_publication_approval"])
+
+    def test_packet_rejects_missing_digest(self):
+        def fetch(url):
+            if "/releases/tags/" in url:
+                return {**RELEASE, "assets": [{**RELEASE["assets"][0], "digest": None}]}
+            return public_release_fetch(url)
+        with self.assertRaises(ValueError):
+            prepare_packet(CATALOG, "demo", "v1", fetch=fetch)
+
+    def test_packet_requires_exact_asset_if_ambiguous(self):
+        double = {**RELEASE, "assets": RELEASE["assets"] + [
+            {**RELEASE["assets"][0], "name": "another.apk",
+             "browser_download_url": URL.replace("example.apk", "another.apk")} ]}
+        def fetch(url):
+            return double if "/releases/tags/" in url else public_release_fetch(url)
+        with self.assertRaises(ValueError):
+            prepare_packet(CATALOG, "demo", "v1", fetch=fetch)
+        selected = prepare_packet(CATALOG, "demo", "v1", asset_name="example.apk", fetch=fetch)
+        self.assertEqual(selected["asset"]["name"], "example.apk")
+
+    def test_packet_never_approves_a_draft(self):
+        def fetch(url):
+            return {**RELEASE, "draft": True} if "/releases/tags/" in url else public_release_fetch(url)
+        with self.assertRaises(ValueError):
+            prepare_packet(CATALOG, "demo", "v1", fetch=fetch)
+
+    def test_publication_audit_rejects_tag_mismatch(self):
+        project = {**PROJECT, "catalog_state": "published",
+                   "published_release_tag": "v1", "approved_download_url": URL}
+        row = {"project_id": "demo", "release_tag": "v1", "download_url": URL,
+               "sha256": DIGEST, "source_commit": "e" * 40,
+               "approved": True, "qa_passed": True, "signature_checked": True}
+        errors = audit({"schema_version": 1, "projects": [project]},
+                       {"schema_version": 1, "published_releases": [row]}, public_release_fetch)
+        self.assertTrue(any("source commit" in error for error in errors), errors)
 
 
 class BuildTests(unittest.TestCase):
