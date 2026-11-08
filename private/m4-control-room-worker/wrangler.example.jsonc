@@ -1,0 +1,13 @@
+{
+  // SAFE EXAMPLE ONLY. DO NOT DEPLOY until Cloudflare Access protects the
+  // complete Worker (production AND previews), with an owner-only policy.
+  // Do not add [access.dev] to any deployable configuration.
+  "name": "navin-studio-owner-private-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-08",
+  "workers_dev": false,
+  "vars": {
+    // Values must come from the actual Access application/identity setup.
+    // Intentionally absent: ACCESS_AUD, OWNER_USER_UUID.
+  }
+}
