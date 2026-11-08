@@ -1,0 +1,28 @@
+name: Scan public APK release candidates (review only)
+
+on:
+  schedule:
+    # Once daily; GitHub-hosted schedules may be delayed.
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan known public GitHub repositories
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 site/tools/release_watch.py --output site/reports/release-candidates.json
+      - name: Save read-only review report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-release-candidates
+          path: site/reports/release-candidates.json
+          if-no-files-found: warn
+          retention-days: 7

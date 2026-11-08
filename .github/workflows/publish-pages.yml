@@ -1,0 +1,51 @@
+name: Publish NAVIN STUDIO website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/publish-pages.yml'
+      - '.github/workflows/public-site-checks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: studio-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    # Never deploy a feature branch or pull request into the public site.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate exact committed standalone build
+        run: |
+          python3 site/build.py --check
+          python3 site/tests/validate.py
+          python3 -m unittest discover -s site/tools/tests -v
+          node --check site/src/app.js
+      - name: Audit approved download URLs and GitHub SHA-256 digests
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 site/tools/verify_release_assets.py
+      - name: Create public-only static bundle
+        run: python3 site/tools/build_dist.py --output "${RUNNER_TEMP}/navin-site"
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/navin-site
+      - name: Deploy public website
+        id: deployment
+        uses: actions/deploy-pages@v4
