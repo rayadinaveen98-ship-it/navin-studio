@@ -104,6 +104,23 @@ async function run(){
   await sleep(300);
   check(await evaluate('document.querySelector("#studio-intro-shell").hidden===true'),'Internal navigation replayed opening');
 
+  // Project story is a first-class, shareable public page, not a small modal.
+  await evaluate('document.querySelector("[data-project=backlot]").click()');
+  await until('location.hash==="#project/backlot" && document.querySelector("#view-project")?.classList.contains("is-active")',2500);
+  check(await evaluate('document.querySelector("#project-story-title")?.textContent==="Backlot"'),'Wrong desktop project heading');
+  check(await evaluate('document.querySelectorAll("#view-project .px-facet").length===3'),'Missing creative-focus sections');
+  check(await evaluate('document.querySelector("#view-project .px-access")?.textContent.includes("No studio-approved public download")'),'Unapproved release disclosure missing');
+  check(await evaluate('document.querySelector("#view-project a.px-button-primary")?.href.includes("github.com/rayadinaveen98-ship-it/framebynavin-android")'),'Public source link mismatch');
+  await snap('desktop-project-backlot.png');
+
+  // Related project navigation updates the URL and content; history remains usable.
+  await evaluate('document.querySelector("#view-project .px-related-card").click()');
+  await until('location.hash.startsWith("#project/") && location.hash!=="#project/backlot"',2000);
+  await evaluate('history.back()');
+  await until('location.hash==="#project/backlot" && document.querySelector("#project-story-title")?.textContent==="Backlot"',2000);
+  await evaluate('document.querySelector("#view-project .px-breadcrumb [data-route=creations]").click()');
+  await until('location.hash==="#creations" && document.querySelector("#view-creations")?.classList.contains("is-active")',2000);
+
   await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   await cdp('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
   await openSite();
@@ -114,17 +131,28 @@ async function run(){
   check(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),'Horizontal overflow on mobile');
   await snap('mobile-real-homepage.png');
 
+  await evaluate('document.querySelector("[data-project=frame-one]").click()');
+  await until('location.hash==="#project/frame-one" && document.querySelector("#project-story-title")?.textContent==="Frame One"',2000);
+  check(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),'Project page caused mobile horizontal overflow');
+  check(await evaluate('document.querySelector("#view-project .px-hero")?.getBoundingClientRect().width <= window.innerWidth'),'Project hero clipped on mobile');
+  await snap('mobile-project-frame-one.png');
+
   await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   await openSite();
   await until('document.readyState==="complete"');
   check(await evaluate('document.querySelector("#studio-intro-shell").hidden===true'),'Reduced-motion path played the intro');
   check(await evaluate('!document.body.classList.contains("studio-intro-active")'),'Reduced-motion locked page');
 
+  // Direct deep-link refresh resolves the correct project after catalog loads.
+  await cdp('Page.navigate',{url:origin+'/index.html#project/bridge'});
+  await until('document.querySelector("#project-story-title")?.textContent==="Bridge" && document.querySelector("#view-project")?.classList.contains("is-active")',3500);
+  check(await evaluate('document.title==="Bridge — NAVIN STUDIO"'),'Deep-linked page document title mismatch');
+
   await writeFile(path.join(artifacts,'browser-exceptions.json'),JSON.stringify(jsErrors,null,2));
   check(jsErrors.length===0,'Unexpected browser script errors: '+JSON.stringify(jsErrors));
-  const result={ok:true,scenarios:['fresh-entry','desktop-handoff','skip','replay','SPA-route','mobile-handoff','mobile-overflow','reduced-motion'],uncaughtErrors:jsErrors};
+  const result={ok:true,scenarios:['fresh-entry','desktop-handoff','skip','replay','SPA-route','desktop-project','related-project','browser-history','mobile-handoff','mobile-overflow','mobile-project','reduced-motion','project-deep-link'],uncaughtErrors:jsErrors};
   await writeFile(path.join(artifacts,'browser-smoke.json'),JSON.stringify(result,null,2));
-  console.log('PASS: NAVIN STUDIO V3 + 8 Chrome smoke scenarios.');
+  console.log('PASS: NAVIN STUDIO V3 + 13 Chrome smoke scenarios.');
 }
 try {await run();}
 catch(e){console.error('FAIL:',e.stack||e);console.error('Chrome stderr:',chromeErr.slice(-1300));process.exitCode=1;}
