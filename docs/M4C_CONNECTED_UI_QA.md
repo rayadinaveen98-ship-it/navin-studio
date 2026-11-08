@@ -23,10 +23,14 @@ The Control Room loads `/api/me`, `/api/overview` and `/api/projects` with same-
 - [GitHub source/security CI run](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42510419061): successful on source/UI commit `8852912bf3cde97cfe52e637e1641e92495278d1`.
 - [Public site validation](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42510419026): successful; no edits to the published public Studio.
 - [Public V3 browser regression](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42510419002): successful.
-- **38 Node test cases** passed; includes identity denial, asset route authorization, content-security policy, JSON contract, GitHub source allowlisting, and UI source syntax.
+- **56 Node test cases** passed; includes identity denial, asset route authorization, content-security policy, JSON contract, GitHub source allowlisting, and UI source syntax.
 - Exact source bundle downloaded from the GitHub Actions artifact for the committed revision and rendered in local Playwright Chromium **with mocked `/api` responses**.
 - Chromium interaction checks succeeded at 1440×900, 768×1024, 390×844 and 360×780: source load state, eight catalog items, two search matches for “frame”, source/CI evidence modal behavior, denial clearing of metrics, no horizontal overflow, and zero uncaught JavaScript errors.
 - The Chrome screenshots shown to the owner are **explicitly labeled simulated API evidence**; they do not demonstrate production Cloudflare Access, real connected owner credentials or latest actual GitHub state.
+
+## Additional offline security verification
+
+A follow-up test suite now exercises the Worker through actual **loopback HTTP** (anonymous, non-owner, forged headers, full HTML/JS/CSS/API paths and read-only behavior), in addition to the direct unit and UI checks. An optional, explicit staging probe classifies a Cloudflare Access login redirect as a *challenge* but correctly treats HTTP 403 alone as *inconclusive*. Details and owner-only setup steps: [staging runbook](M4C_STAGING_RUNBOOK.md). These checks are not a substitute for testing an actual Cloudflare configuration.
 
 ## Remaining gates
 
