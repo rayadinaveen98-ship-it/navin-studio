@@ -31,9 +31,11 @@ REDIRECT_HOSTS = frozenset({
     "objects.githubusercontent.com",
 })
 DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+# Android Build Tools 37+ uses "V2 Signer:" / "V3.0 Signer:" rather
+# than the legacy "Signer #1" heading. Both refer to the APK certificate.
 CERT_RE = re.compile(
-    r"Signer #([0-9]+) certificate SHA-256 digest:\s*([0-9a-fA-F:]{64,95})",
-    re.I,
+    r"(?im)^\s*(?:(?:Signer\s*#\d+)|(?:V[1-4](?:\.\d+)?\s+Signer))"
+    r"\s*:?\s*certificate\s+SHA-256\s+digest\s*:\s*([0-9a-fA-F:]{64,95})"
 )
 PACKAGE_RE = re.compile(
     r"(?m)^package:\s+name='([^']+)'\s+versionCode='([^']+)'\s+versionName='([^']*)'"
@@ -124,8 +126,8 @@ def read_android_identity(apk: Path, apksigner: Path, aapt: Path, *, run=subproc
         raise InspectionError("Official Android SDK build-tools are unavailable")
     signed = _run_tool([str(apksigner), "verify", "--verbose", "--print-certs", str(apk)], run)
     certificates = sorted({
-        m.group(2).replace(":", "").lower() for m in CERT_RE.finditer(signed)
-        if DIGEST_RE.fullmatch(m.group(2).replace(":", "").lower())
+        m.group(1).replace(":", "").lower() for m in CERT_RE.finditer(signed)
+        if DIGEST_RE.fullmatch(m.group(1).replace(":", "").lower())
     })
     if not certificates:
         raise InspectionError("APK verified but signer certificate SHA-256 was not readable")

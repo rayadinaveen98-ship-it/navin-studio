@@ -164,6 +164,39 @@ class BinaryInspectionTests(unittest.TestCase):
             self.assertFalse(identity["functional_qa_passed"])
             self.assertFalse(identity["owner_approval"])
 
+    def test_android_build_tools_37_v2_signer_heading(self):
+        def v37(args, **kwargs):
+            if "apksigner" in args[0]:
+                return subprocess.CompletedProcess(
+                    args, 0,
+                    "Verifies\nV2 Signer: certificate SHA-256 digest: " + CERT
+                    + "\nV2 Signer: certificate DN: CN=Android Debug, O=Android",
+                    "")
+            return fake_command(args, **kwargs)
+        with tempfile.TemporaryDirectory() as d:
+            signer, aapt = self.make_sdk(d)
+            apk = Path(d) / "test.apk"
+            apk.write_bytes(PAYLOAD)
+            result = read_android_identity(apk, signer, aapt, run=v37)
+            self.assertEqual(result["signer_certificate_sha256"], [CERT])
+            self.assertTrue(result["debug_certificate_subject_detected"])
+
+    def test_android_build_tools_37_v3_signer_heading(self):
+        def v37(args, **kwargs):
+            if "apksigner" in args[0]:
+                return subprocess.CompletedProcess(
+                    args, 0,
+                    "V3.0 Signer: certificate SHA-256 digest: "
+                    + ":".join(CERT[i:i + 2] for i in range(0, 64, 2)),
+                    "")
+            return fake_command(args, **kwargs)
+        with tempfile.TemporaryDirectory() as d:
+            signer, aapt = self.make_sdk(d)
+            apk = Path(d) / "test.apk"
+            apk.write_bytes(PAYLOAD)
+            result = read_android_identity(apk, signer, aapt, run=v37)
+            self.assertEqual(result["signer_certificate_sha256"], [CERT])
+
     def test_signature_failure_blocks(self):
         with tempfile.TemporaryDirectory() as d:
             signer, aapt = self.make_sdk(d)
