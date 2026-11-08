@@ -80,6 +80,9 @@ def prepare_packet(catalog: dict, project_id: str, tag: str,
             "name": apk["name"],
             "size_bytes": apk["size"],
             "download_url": apk["browser_download_url"],
+            # Official GitHub Releases asset endpoint is a second read-only
+            # transport for the *same exact upstream asset*, never a new APK.
+            "asset_id": apk.get("id") if isinstance(apk.get("id"), int) and not isinstance(apk.get("id"), bool) and apk["id"] > 0 else None,
             "github_reported_sha256": DIGEST.fullmatch(apk["digest"]).group(1).lower(),
         },
         "required_manual_evidence": {

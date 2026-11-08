@@ -18,6 +18,7 @@ import re
 import subprocess
 import tempfile
 from urllib.parse import quote, urlsplit
+from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from release_review import prepare_packet
@@ -27,7 +28,7 @@ SITE = Path(__file__).resolve().parents[1]
 MAX_APK_BYTES = 250 * 1024 * 1024
 CHUNK_BYTES = 1024 * 1024
 REDIRECT_HOSTS = frozenset({
-    "github.com", "release-assets.githubusercontent.com",
+    "github.com", "api.github.com", "release-assets.githubusercontent.com",
     "objects.githubusercontent.com",
 })
 DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -61,29 +62,13 @@ class RestrictedRedirects(HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-def fetch_exact_asset(packet: dict, output: Path, *, opener=None) -> dict:
-    """Download the sole preselected APK with strict bounds and an independent hash."""
-    repo, tag = packet["repository"], packet["release_tag"]
-    asset = packet["asset"]
-    url = asset["download_url"]
-    expected_prefix = f"https://github.com/{repo}/releases/download/{quote(tag, safe='')}/"
-    if not isinstance(url, str) or not url.startswith(expected_prefix):
-        raise InspectionError("APK URL is not from the approved GitHub project/tag")
-    assert_allowed_url(url)
-    name = asset["name"]
-    if not isinstance(name, str) or not name.lower().endswith(".apk"):
-        raise InspectionError("Expected a named APK file")
-    size = asset["size_bytes"]
-    if not isinstance(size, int) or isinstance(size, bool) or not 0 < size <= MAX_APK_BYTES:
-        raise InspectionError("APK size is absent, empty, or exceeds 250 MiB")
-    digest = asset["github_reported_sha256"]
-    if not isinstance(digest, str) or not DIGEST_RE.fullmatch(digest):
-        raise InspectionError("GitHub SHA-256 metadata is unavailable or invalid")
-    opener = opener or build_opener(RestrictedRedirects())
-    request = Request(url, headers={
-        "User-Agent": "navin-studio-binary-inspector/0.1",
-        "Accept": "application/octet-stream",
-    })
+def _read_verified_asset(request: Request, output: Path, *, opener,
+                         size: int, digest: str) -> dict:
+    """Verify the actual streamed APK bytes from either allowed GitHub route.
+
+    A completed but incorrect response (including JSON error pages) must NEVER
+    trigger a fallback: a bad checksum, size, or redirect is a security failure.
+    """
     sha256 = hashlib.sha256()
     count = 0
     with opener.open(request, timeout=45) as response, output.open("wb") as handle:
@@ -104,6 +89,60 @@ def fetch_exact_asset(packet: dict, output: Path, *, opener=None) -> dict:
     if actual != digest:
         raise InspectionError("Independent downloaded APK SHA-256 does not match GitHub digest")
     return {"sha256": actual, "size_bytes": count, "integrity_matches_github": True}
+
+
+def fetch_exact_asset(packet: dict, output: Path, *, opener=None) -> dict:
+    """Fetch only a published GitHub APK; use asset API on transient URL outage.
+
+    No alternative binary, mirror, private source, or unapproved URL is allowed.
+    GitHub's asset ID comes from the *same release's exact APK asset metadata*.
+    Final downloaded bytes are verified against its original SHA-256 and size.
+    """
+    repo, tag = packet["repository"], packet["release_tag"]
+    asset = packet["asset"]
+    url = asset["download_url"]
+    expected_prefix = f"https://github.com/{repo}/releases/download/{quote(tag, safe='')}/"
+    if not isinstance(url, str) or not url.startswith(expected_prefix):
+        raise InspectionError("APK URL is not from the approved GitHub project/tag")
+    assert_allowed_url(url)
+    name = asset["name"]
+    if not isinstance(name, str) or not name.lower().endswith(".apk"):
+        raise InspectionError("Expected a named APK file")
+    size = asset["size_bytes"]
+    if not isinstance(size, int) or isinstance(size, bool) or not 0 < size <= MAX_APK_BYTES:
+        raise InspectionError("APK size is absent, empty, or exceeds 250 MiB")
+    digest = asset["github_reported_sha256"]
+    if not isinstance(digest, str) or not DIGEST_RE.fullmatch(digest):
+        raise InspectionError("GitHub SHA-256 metadata is unavailable or invalid")
+
+    opener = opener or build_opener(RestrictedRedirects())
+    request = Request(url, headers={
+        "User-Agent": "navin-studio-binary-inspector/0.2",
+        "Accept": "application/octet-stream",
+    })
+    try:
+        return _read_verified_asset(request, output, opener=opener,
+                                    size=size, digest=digest)
+    except (HTTPError, URLError, TimeoutError) as exc:
+        code = exc.code if isinstance(exc, HTTPError) else None
+        if code is not None and code not in (429, 500, 502, 503, 504):
+            raise
+        asset_id = asset.get("asset_id")
+        if (not isinstance(asset_id, int) or isinstance(asset_id, bool)
+                or not 0 < asset_id < 2**63):
+            raise
+        # Public asset; no bearer token is forwarded on redirects.
+        api_url = f"https://api.github.com/repos/{repo}/releases/assets/{asset_id}"
+        assert_allowed_url(api_url)
+        api_request = Request(api_url, headers={
+            "User-Agent": "navin-studio-binary-inspector/0.2",
+            "Accept": "application/octet-stream",
+            "X-GitHub-Api-Version": "2022-11-28",
+        })
+        # A 200 JSON metadata response or a different binary FAILS exact
+        # size/hash verification, never silently accepted as a replacement.
+        return _read_verified_asset(api_request, output, opener=opener,
+                                    size=size, digest=digest)
 
 
 def _run_tool(command: list[str], run=subprocess.run) -> str:
