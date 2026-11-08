@@ -1,0 +1,71 @@
+name: CineRelay pre-auth navigation smoke (no credentials)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/auth-entry-smoke.yml'
+      - 'site/tools/auth_entry_smoke.py'
+      - 'site/tools/run_auth_entry_smoke.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auth-entry:
+    name: Verify CineRelay welcome/sign-in/create-account navigation
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run offline release & UI safety tests
+        run: python3 -m unittest discover -s site/tools/tests -v
+      - name: Enable KVM for disposable Android emulator
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Boot Android 35, inspect blank auth screens and back navigation
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # pinned upstream v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: true
+          script: bash site/tools/run_auth_entry_smoke.sh
+      - name: Summarize zero-credentials QA
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          print("## CineRelay: pre-authentication screen QA")
+          print()
+          print("This test DOES NOT enter an email/password, submit forms, create users, or authenticate.")
+          p=Path("site/reports/auth-entry/auth-entry-result.json")
+          if p.exists():
+              j=json.loads(p.read_text(encoding="utf-8"))
+              print()
+              print("**State:**", j.get("state","unknown").replace("|","/"))
+              print()
+              for key, value in j.get("checks",{}).items():
+                  print(f"- {key.replace('|','/')}: {value}")
+          else:
+              print("No report. See emulator failure logs.")
+          PY
+      - name: Upload blank-form screenshots and allowlisted JSON only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unapproved-cinerelay-auth-entry-evidence
+          path: site/reports/auth-entry/*
+          if-no-files-found: warn
+          retention-days: 7
