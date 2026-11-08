@@ -73,7 +73,7 @@ def installed_version_from_dumpsys(output: str) -> int:
 
 
 SYSTEM_ANR_RE = re.compile(
-    r"(?:isn['’]t|is\\s+not)\\s+responding|(?:app|application)\\s+not\\s+responding",
+    r"(?:isn['’]t|is\s+not)\s+responding|(?:app|application)\s+not\s+responding",
     re.I,
 )
 
