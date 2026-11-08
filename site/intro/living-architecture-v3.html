@@ -291,7 +291,7 @@ function animateVault(s,mark,out){
  set($('energyWarm'),{opacity:String(.24+.44*appear),transform:`translate3d(${(dx*1.3).toFixed(1)}px,${dy}px,0)`});
  set($('energyCool'),{opacity:String(.30+.48*appear),transform:`translate3d(${(-dx*1.3).toFixed(1)}px,${-dy}px,0)`});
 }
-function render(ms){t=Math.max(0,Math.min(duration,ms));const s=t/1000,mark=smooth(.55,1.78,s),text=smooth(1.63,2.85,s),signature=smooth(2.7,3.55,s),out=smooth(3.89,4.99,s);resetIfNeeded();drawAtmosphere(s,mark,out);animateVault(s,mark,out);if(t<duration)$('skipBtn').textContent='Skip intro ↗';
+function render(ms){t=Math.max(0,Math.min(duration,ms));const s=t/1000,mark=smooth(.55,1.78,s),text=smooth(1.63,2.85,s),signature=smooth(2.7,3.55,s),out=smooth(3.89,4.99,s);resetIfNeeded();drawAtmosphere(s,mark,out);animateVault(s,mark,out);
 set(intro,{opacity:String(1-.45*out),pointerEvents:out>.92?'none':'auto',maskImage:out>0?`radial-gradient(ellipse at 50% 44%, transparent ${Math.max(0,(out-.02)*160)}%, black ${Math.max(8,(out-.02)*160+17)}%)`:'none',WebkitMaskImage:out>0?`radial-gradient(ellipse at 50% 44%, transparent ${Math.max(0,(out-.02)*160)}%, black ${Math.max(8,(out-.02)*160+17)}%)`:'none'});
 set($('glow'),{opacity:String(smooth(.42,1.55,s)*(.85-.6*out)),transform:`translate(-50%,-50%) scale(${.72+.46*mark+.10*Math.sin(s*1.5)})`});
 set($('depthFields'),{opacity:String(.16*smooth(.45,1.72,s)*(1-out)),transform:`translateY(${(1-mark)*34}px) scale(${1.10-.10*mark+.18*out}) rotate(${(s*.8).toFixed(2)}deg)`});
