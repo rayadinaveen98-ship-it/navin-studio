@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import time
 
-from inspect_apk import fetch_exact_asset, read_android_identity
+from inspect_apk import InspectionError, fetch_exact_asset, read_android_identity
 from release_review import prepare_packet
 from release_watch import github_json
 
@@ -146,7 +146,7 @@ def main() -> int:
         report = smoke_one(catalog, args.project, args.tag, args.apksigner,
                            args.aapt, args.screenshot, asset=args.asset)
         code = 0
-    except (EmulatorError, ValueError, KeyError, TypeError, OSError) as err:
+    except (InspectionError, EmulatorError, ValueError, KeyError, TypeError, OSError) as err:
         report = {"schema_version": 1, "kind": "NAVIN_STUDIO_EMULATOR_SMOKE",
                   "status": "BLOCKED_NOT_QA_APPROVED", "project_id": args.project,
                   "release_tag": args.tag, "reason": str(err)[:200],
