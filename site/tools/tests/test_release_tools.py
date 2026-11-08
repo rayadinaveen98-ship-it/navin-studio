@@ -170,10 +170,13 @@ class BuildTests(unittest.TestCase):
             (source / "robots.txt").write_text("User-agent: *\nDisallow: /\n")
             (source / "data/projects.json").write_text(json.dumps(CATALOG))
             (source / "data/releases.json").write_text(json.dumps({"schema_version": 1, "published_releases": []}))
+            (source / "intro").mkdir()
+            (source / "intro/living-architecture-v3.html").write_text("<!doctype html><title>Approved V3 cinematic intro</title>")
             (source / "private-token.txt").write_text("never publish")
             target = root / "dist"
             files = build(source, target)
-            self.assertEqual(len(files), 4)
+            self.assertEqual(len(files), 5)
+            self.assertTrue((target / "intro/living-architecture-v3.html").is_file())
             self.assertFalse((target / "private-token.txt").exists())
             self.assertTrue((target / ".nojekyll").exists())
 
