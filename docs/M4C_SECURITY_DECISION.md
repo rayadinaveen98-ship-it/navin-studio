@@ -5,7 +5,7 @@
 
 ## Decision
 
-Keep the NAVIN STUDIO public presentation on GitHub Pages. Implement its private Creator Command Center as a **distinct Cloudflare Access–protected Worker**. Use Cloudflare's Access \`ctx.access\` (directly authenticated Worker invocations) with an additional exact allowlist of the owner user UUID and the expected Access app audience. Never trust browser-supplied identity fields or expose private data through the public \`site/\` bundle.
+Keep the NAVIN STUDIO public presentation on GitHub Pages. Implement its private Creator Command Center as a **distinct Cloudflare Access–protected Worker**. Use Cloudflare's Access `ctx.access` (directly authenticated Worker invocations) with an additional exact allowlist of the owner user UUID and the expected Access app audience. Never trust browser-supplied identity fields or expose private data through the public `site/` bundle.
 
 ## Why now?
 
@@ -15,16 +15,16 @@ The M4-B standalone Control Room prototype has passed browser interaction/layout
 
 1. Workers Free supports up to 100,000 requests/day and documented CPU/subrequest limits (Cloudflare Workers Limits, checked 2026-11-08).
 2. Cloudflare Access has a $0 small-team tier and supports worker-level policies covering production **and preview URLs** (Access official documentation).
-3. \`ctx.access\` is present after successful Worker-level authentication and supports \`getIdentity()\`; the identity includes a stable user UUID. It does **not** automatically propagate through Service Bindings or some Static Assets routing paths. This architecture deliberately uses a Worker-only API first.
+3. `ctx.access` is present after successful Worker-level authentication and supports `getIdentity()`; the identity includes a stable user UUID. It does **not** automatically propagate through Service Bindings or some Static Assets routing paths. This architecture deliberately uses a Worker-only API first.
 
 These are public service offerings, not a guarantee the user's account has a particular entitlement, Cloudflare login, domain or cost configuration. No provider has been provisioned.
 
 ## Implemented M4-C proof
 
-- Dedicated source folder under \`private/m4-control-room-worker/\`, outside GitHub Pages.
+- Dedicated source folder under `private/m4-control-room-worker/`, outside GitHub Pages.
 - Explicit allowlisted eight public projects imported from the authoritative site catalog.
 - Server-side default-deny authorization and exact owner/AUD check for **every request**.
-- 5 read-only endpoints: \`me\`, \`overview\`, \`projects\`, per-project repository metadata and latest public CI run.
+- 5 read-only endpoints: `me`, `overview`, `projects`, per-project repository metadata and latest public CI run.
 - Fixed upstream GitHub REST URL only; no arbitrary repository input, redirects or caller tokens forwarded.
 - Time-limited reads, error classes, cache-control no-store, no cross-origin data sharing, no fake readiness or private analytics.
 - No real identity values/secrets, DB, login, release approvals or deployable Worker configuration.
@@ -36,7 +36,7 @@ These are public service offerings, not a guarantee the user's account has a par
 | --- | --- |
 | Wrong Access policy/alternative unprotected URL | Require worker-level Access on all routes/previews and test against real external URLs |
 | Unauthorized identity despite login | Exact server-side allowlisted stable owner UUID and matching application AUD |
-| Accidental static admin exposure | Separate Worker folder, no integration with the published \`site/\` asset allowlist |
+| Accidental static admin exposure | Separate Worker folder, no integration with the published `site/` asset allowlist |
 | Rate-limited public GitHub API | Explicit rate-limit state, later source-aware caching with freshness evidence |
 | Cross-origin request / CSRF | No CORS and no write APIs now; origin, anti-CSRF and audit gates before future writes |
 | Fake product progress | CI results always scoped to precise run/commit, never translated to approved APK status |
