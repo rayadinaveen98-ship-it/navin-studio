@@ -1,0 +1,80 @@
+name: CineRelay local state upgrade probe (no accounts)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/local-state-upgrade.yml'
+      - 'site/tools/local_state_upgrade_probe.py'
+      - 'site/tools/run_local_state_upgrade_probe.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-state:
+    name: Check CineRelay non-sensitive local state across APK upgrade
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run all offline safety and release tests
+        run: python3 -m unittest discover -s site/tools/tests -v
+
+      - name: Enable acceleration for disposable rooted Android emulator
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Boot Android 35; test safe SharedPreferences and synthetic marker
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # pinned upstream v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: true
+          script: bash site/tools/run_local_state_upgrade_probe.sh
+
+      - name: Explain exactly what persisted
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path("site/reports/local-state/state-report.json")
+          print("## CineRelay local-state continuity, NOT authenticated user-data migration")
+          print()
+          print("**Only a welcome preference and synthetic sandbox marker are inspected.** No sessions, tokens, emails, accounts, favorites or messages are read.")
+          if not p.is_file():
+              print("No report; inspect emulator logs for an environment failure.")
+          else:
+              j=json.loads(p.read_text(encoding="utf-8"))
+              print()
+              print("State:", j.get("state","unknown"))
+              if j.get("state") == "BLOCKED_NOT_RELEASE_APPROVED":
+                  print("Reason:",str(j.get("reason","unknown")).replace("|","/")[:160])
+              else:
+                  for k,v in j.get("checks",{}).items():
+                      print(f"- {k}: {v}")
+          print()
+          print("**No physical-device, account-migration, authenticated-feature QA, or release approval occurred.**")
+          PY
+
+      - name: Retain privacy-safe JSON and logged-out welcome screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unapproved-cinerelay-local-state-evidence
+          path: site/reports/local-state/*
+          if-no-files-found: warn
+          retention-days: 7
