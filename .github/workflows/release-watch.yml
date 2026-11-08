@@ -18,6 +18,43 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python3 site/tools/release_watch.py --output site/reports/release-candidates.json
+      - name: Summarize public APK candidates for reviewer
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          p=Path('site/reports/release-candidates.json')
+          print('## NAVIN STUDIO — public APK candidate inbox')
+          print()
+          print('**Discovery only. Nothing here is signed-off, QA-verified or approved for the studio website.**')
+          print()
+          if not p.is_file():
+              print('The release scan did not generate a report. Check the failed scan step.')
+          else:
+              data=json.loads(p.read_text(encoding='utf-8'))
+              count=0
+              for project in data.get('projects', []):
+                  for item in project.get('candidate_releases', []):
+                      for asset in item.get('apk_assets', []):
+                          count+=1
+                          def clean(value):
+                              return str(value).replace('|', r'\|').replace('\r',' ').replace('\n',' ')
+                          if count==1:
+                              print('| Project | Tag | Channel | APK | GitHub SHA-256 |')
+                              print('| --- | --- | --- | --- | --- |')
+                          print('| '+ ' | '.join(map(clean,(
+                              project.get('project_id','?'), item.get('tag','?'),
+                              item.get('channel_hint','?'),asset.get('name','?'),
+                              asset.get('github_digest') or 'unavailable'
+                          )))+' |')
+              print()
+              print(f'Found {count} unapproved APK asset(s).')
+              if data.get('errors'):
+                  print(f"**Attention:** {len(data['errors'])} repository scan error(s); data may be incomplete.")
+              print('For a specific asset, run the manual **Prepare APK release review packet** workflow.')
+          PY
       - name: Save read-only review report
         if: always()
         uses: actions/upload-artifact@v4

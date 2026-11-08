@@ -1,0 +1,72 @@
+name: Prepare APK release review packet (not publishing)
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: 'Exact id from site/data/projects.json (e.g., cinerelay)'
+        required: true
+        type: string
+      tag:
+        description: 'Existing published GitHub Release tag (e.g., v0.2.9)'
+        required: true
+        type: string
+      asset:
+        description: 'Exact APK file name if release has multiple APKs; blank for one asset'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  review-packet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve release and original source commit
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PROJECT_ID: ${{ inputs.project_id }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          APK_ASSET: ${{ inputs.asset }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--project "$PROJECT_ID" --tag "$RELEASE_TAG" --output site/reports/manual-review-packet.json)
+          if [[ -n "$APK_ASSET" ]]; then args+=(--asset "$APK_ASSET"); fi
+          python3 site/tools/release_review.py "${args[@]}"
+      - name: Prepare readable reviewer summary
+        if: success()
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          p=json.load(open('site/reports/manual-review-packet.json', encoding='utf-8'))
+          def plain(v):
+              return str(v).replace('|', r'\|').replace('\r', ' ').replace('\n', ' ')
+          print('## APK review candidate — NOT APPROVED')
+          print()
+          print('| Field | GitHub-sourced value |')
+          print('| --- | --- |')
+          for label, value in [
+              ('Project', p['project_name']),
+              ('Release tag', p['release_tag']),
+              ('Channel hint', p['channel_hint']),
+              ('Source commit SHA', p['source_commit']),
+              ('APK asset', p['asset']['name']),
+              ('File size (bytes)', p['asset']['size_bytes']),
+              ('GitHub-reported SHA-256', p['asset']['github_reported_sha256'])
+          ]:
+              print(f'| {plain(label)} | {plain(value)} |')
+          print()
+          print('**No APK or website publication happened.** Check the independent binary hash, '
+                'Android signing identity, package, installation and QA, and obtain owner approval.')
+          PY
+      - name: Store review packet for manual inspection
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: unapproved-apk-review-packet
+          path: site/reports/manual-review-packet.json
+          if-no-files-found: error
+          retention-days: 7

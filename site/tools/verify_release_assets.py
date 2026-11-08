@@ -13,6 +13,7 @@ import re
 from urllib.parse import quote, urlsplit
 
 from release_watch import github_json
+from release_source import resolve_tag_commit
 
 SITE = Path(__file__).resolve().parents[1]
 HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -76,6 +77,14 @@ def audit(catalog: dict, manifest: dict, fetch=github_json) -> list[str]:
         # Without it we cannot corroborate the approved checksum through the API.
         if digest != f"sha256:{checksum}":
             problems.append(f"{ident}: GitHub asset digest missing or mismatched")
+            continue
+        try:
+            actual_commit = resolve_tag_commit(repo, tag, fetch)
+        except Exception:
+            problems.append(f"{ident}: GitHub tag source commit unavailable (fail closed)")
+            continue
+        if actual_commit != str(item.get("source_commit", "")).lower():
+            problems.append(f"{ident}: source commit does not match release tag")
     return problems
 
 
