@@ -31,10 +31,35 @@
 .catalog-error{grid-column:1/-1;background:#251b20;border:1px solid #ff95765c;color:#ffd1c5;border-radius:14px;padding:28px}
 .published-releases{width:100%;text-align:left}.published-releases h2{font-size:26px}.published-release{padding:22px;margin:12px 0;border:1px solid #ffffff2f;border-radius:12px}.published-release h3{font-size:20px}.published-release p{font-size:13px;color:#b5bdc8}.published-release code{display:block;margin:14px 0;overflow-wrap:anywhere;font-size:10px}
 
+
+/* Director's Cut V3 — production welcome. The approved visual lives in the
+   isolated /intro document; this layer only owns accessibility and playback. */
+.studio-intro-shell[hidden]{display:none!important}
+.studio-intro-shell{position:fixed;inset:0;width:100%;height:100dvh;z-index:1200;overflow:hidden;isolation:isolate;background:#030407;overscroll-behavior:contain}
+.studio-intro-shell iframe{display:block;position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;overflow:hidden}
+.studio-intro-actions{position:absolute;z-index:3;top:max(18px,env(safe-area-inset-top));left:clamp(15px,3vw,48px);right:clamp(15px,3vw,48px);display:flex;align-items:center;justify-content:space-between;gap:12px;pointer-events:none}
+.studio-intro-label{font-size:9px;letter-spacing:.24em;font-weight:750;color:#bfb4bc;text-shadow:0 1px 10px #000}
+.studio-intro-label span{color:#9293a2;font-weight:440}
+.studio-intro-skip{pointer-events:auto;color:#f8ede5;background:#14151dca;border:1px solid #ffffff39;border-radius:999px;padding:12px 18px;font-size:11px;letter-spacing:.08em;font-weight:700;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 35px #0006;transition:border-color .2s,background .2s,transform .2s;white-space:nowrap}
+.studio-intro-skip span{margin-left:8px;font-size:14px}
+.studio-intro-skip:hover{background:#403039dd;border-color:#f3c4afaa;transform:translateY(-1px)}
+.studio-intro-skip:focus-visible{outline:2px solid #f3bfa6;outline-offset:4px}
+body.studio-intro-active{overflow:hidden!important;overscroll-behavior:none}
+#studio-replay-intro{cursor:pointer}
+@media(max-width:560px){.studio-intro-actions{top:max(14px,env(safe-area-inset-top));left:16px;right:12px}.studio-intro-label{font-size:7px;letter-spacing:.14em}.studio-intro-label span{display:none}.studio-intro-skip{padding:10px 13px;font-size:10px}}
+
 </style>
 <meta name="robots" content="noindex,nofollow" />
 </head>
 <body>
+  <!-- The approved V3 ident plays only on full-page openings, never internal routes. -->
+  <div id="studio-intro-shell" class="studio-intro-shell" hidden role="dialog" aria-modal="true" aria-label="NAVIN STUDIO cinematic welcome">
+    <iframe id="studio-intro-frame" title="Cinematic opening animation" aria-hidden="true" tabindex="-1" src="about:blank"></iframe>
+    <div class="studio-intro-actions">
+      <span class="studio-intro-label" aria-hidden="true">NAVIN STUDIO <span> / ORIGINAL WORLDS</span></span>
+      <button id="studio-intro-skip" type="button" class="studio-intro-skip">Skip intro <span aria-hidden="true">↗</span></button>
+    </div>
+  </div>
   <svg aria-hidden="true" class="svg-sprite" xmlns="http://www.w3.org/2000/svg">
     <symbol id="ic-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></symbol>
     <symbol id="ic-arrow-diag" viewBox="0 0 24 24"><path d="M6 18 18 6M8 6h10v10"/></symbol>
@@ -157,7 +182,7 @@
     <section class="view" id="view-journal" data-view="journal" aria-label="Studio journal"><div class="container inner-page"><div class="page-kicker"><span class="eyebrow-dash"></span> 04 / THE JOURNAL</div><div class="page-heading"><div><h1>The work <em>behind the work.</em></h1><p>Milestones and reflections from our journey — grounded in real progress, not fictional timelines.</p></div><span class="page-big-number" aria-hidden="true">04</span></div><div class="journal-layout"><div class="journal-feature"><span class="journal-tag">STUDIO NOTE · 08 NOVEMBER 2026</span><div class="journal-visual"><span>N / S</span><div class="journal-moon"></div></div><h2>Today, we gave the ideas a home.</h2><p>Our studio foundation is now recorded in a public repository. We documented a product brief, release verification principles, architecture boundaries and a roadmap — the groundwork for a platform that can evolve without losing its identity.</p><a class="text-link" href="https://github.com/rayadinaveen98-ship-it/navin-studio" target="_blank" rel="noreferrer">Explore the public foundation <svg class="icon"><use href="#ic-arrow-diag"></use></svg></a></div><aside class="journal-rail"><div class="eyebrow tiny">THE PATH AHEAD</div><h3>Chapters, not deadlines.</h3><div class="timeline"><div class="timeline-item current"><span class="timeline-bullet"></span><strong>Foundation</strong><small>Documentation established</small></div><div class="timeline-item"><span class="timeline-bullet"></span><strong>Prototype</strong><small>Three experience prototypes approved</small></div><div class="timeline-item"><span class="timeline-bullet"></span><strong>Public Platform</strong><small>Public web implementation underway</small></div><div class="timeline-item"><span class="timeline-bullet"></span><strong>Verified Releases</strong><small>Planned integration</small></div></div><button class="button button-outline" type="button" data-route="releases">The release philosophy <svg class="icon"><use href="#ic-arrow"></use></svg></button></aside></div></div></section>
   </main>
 
-  <footer class="site-footer"><div class="container"><div class="footer-main"><div><a class="brand footer-brand" href="#home" data-route="home"><span class="brand-symbol" aria-hidden="true"><span></span><span></span><span></span></span><span class="brand-wordmark">NAVIN <span>STUDIO</span></span></a><p>One universe. Many creations.<br />Independent ideas, intentional experiences.</p></div><div class="footer-links"><div><strong>Explore</strong><button data-route="creations">All creations</button><button data-route="releases">Updates</button><button data-route="journal">Journal</button></div><div><strong>Studio</strong><button data-route="studio">Our philosophy</button><a href="https://github.com/rayadinaveen98-ship-it/navin-studio" target="_blank" rel="noreferrer">GitHub repository ↗</a></div></div></div><div class="footer-bottom"><span>© 2026 NAVIN STUDIO. A WORKING STUDIO IDENTITY.</span><span>PUBLIC WEB FOUNDATION · M1 · NO VERIFIED RELEASES</span></div></div></footer>
+  <footer class="site-footer"><div class="container"><div class="footer-main"><div><a class="brand footer-brand" href="#home" data-route="home"><span class="brand-symbol" aria-hidden="true"><span></span><span></span><span></span></span><span class="brand-wordmark">NAVIN <span>STUDIO</span></span></a><p>One universe. Many creations.<br />Independent ideas, intentional experiences.</p></div><div class="footer-links"><div><strong>Explore</strong><button data-route="creations">All creations</button><button data-route="releases">Updates</button><button data-route="journal">Journal</button></div><div><strong>Studio</strong><button data-route="studio">Our philosophy</button><a href="https://github.com/rayadinaveen98-ship-it/navin-studio" target="_blank" rel="noreferrer">GitHub repository ↗</a><button type="button" id="studio-replay-intro" aria-label="Replay the NAVIN STUDIO cinematic introduction">Replay opening ↻</button></div></div></div><div class="footer-bottom"><span>© 2026 NAVIN STUDIO. A WORKING STUDIO IDENTITY.</span><span>PUBLIC WEB FOUNDATION · M1 · NO VERIFIED RELEASES</span></div></div></footer>
 
   <dialog id="project-dialog" class="project-dialog" aria-labelledby="dialog-title"><div class="dialog-shell"><button class="dialog-close icon-button" type="button" data-dialog-close aria-label="Close project"><svg class="icon"><use href="#ic-close"></use></svg></button><div id="dialog-content"></div></div></dialog>
   <dialog id="search-dialog" class="search-dialog" aria-labelledby="search-label"><div class="search-shell"><div class="search-row"><svg class="icon"><use href="#ic-search"></use></svg><label id="search-label" class="sr-only" for="search-input">Search creations</label><input id="search-input" type="search" placeholder="Search our universe…" autocomplete="off" /><button class="search-dismiss" type="button" data-search-close>ESC</button></div><div id="search-results" class="search-results"></div><div class="search-footer">Search projects, formats and ideas <span><svg class="icon"><use href="#ic-key"></use></svg> / TO OPEN</span></div></div></dialog>
@@ -470,6 +495,76 @@ async function initialize(){
   }
 }
 initialize();
+
+
+/**
+ * Approved Director's Cut / Living Architecture V3 cinematic welcome.
+ * The presentation is intentionally isolated from the public site catalog and
+ * release manifests. No network API, tracking, storage or download changes.
+ */
+const studioIdent = (() => {
+  const shell = document.getElementById('studio-intro-shell');
+  const iframe = document.getElementById('studio-intro-frame');
+  const skip = document.getElementById('studio-intro-skip');
+  const replay = document.getElementById('studio-replay-intro');
+  if (!shell || !iframe || !skip) return {start:()=>{}, finish:()=>{}};
+  let active = false, safetyTimeout = null, previousFocus = null, manualReplay = false;
+  let restoreInert = [];
+  const motionDisabled = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function finish() {
+    if (!active) return;
+    active = false;
+    clearTimeout(safetyTimeout);
+    shell.hidden = true;
+    document.body.classList.remove('studio-intro-active');
+    iframe.src = 'about:blank';
+    shell.style.background = '#030407';
+    restoreInert.forEach(([element,wasInert]) => { element.inert = wasInert; });
+    restoreInert = [];
+    const target = manualReplay && previousFocus && previousFocus.isConnected
+      ? previousFocus : document.getElementById('main-content');
+    if (target && document.activeElement === skip) target.focus({preventScroll:true});
+  }
+
+  function start(isReplay=false) {
+    if (active || motionDisabled()) return;
+    manualReplay = isReplay;
+    previousFocus = document.activeElement;
+    const sections = [
+      document.querySelector('header.site-header'),
+      document.getElementById('main-content'),
+      document.querySelector('footer.site-footer')
+    ].filter(Boolean);
+    restoreInert = sections.map(element => [element,element.inert]);
+    sections.forEach(element => { element.inert = true; });
+    active = true;
+    shell.hidden = false;
+    shell.style.background = '#030407';
+    document.body.classList.add('studio-intro-active');
+    iframe.src = new URL('intro/living-architecture-v3.html', document.baseURI).href;
+    // Fail open for missing iframe, blocked scripts, crashes, or tab throttling.
+    safetyTimeout = window.setTimeout(finish, 6200);
+    skip.focus({preventScroll:true});
+  }
+
+  skip.addEventListener('click', finish);
+  replay?.addEventListener('click',()=>start(true));
+  window.addEventListener('message',event=>{
+    if (!active || event.origin !== location.origin || event.source !== iframe.contentWindow) return;
+    if (event.data?.type === 'NAVIN_STUDIO_INTRO_READY') shell.style.background = 'transparent';
+    if (event.data?.type === 'NAVIN_STUDIO_INTRO_FINISHED') finish();
+  });
+  window.addEventListener('keydown',event=>{
+    if (!active || event.key !== 'Escape') return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    finish();
+  },true);
+  window.addEventListener('pagehide',finish);
+  return {start,finish};
+})();
+studioIdent.start(false);
 
 </script>
 </body>
