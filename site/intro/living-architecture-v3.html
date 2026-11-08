@@ -325,5 +325,5 @@ function skip(){cancelAnimationFrame(raf);playing=false;t=duration;finish()}
 window.addEventListener('message',e=>{if(e.source!==parent)return;if(e.origin!==location.origin&&location.origin!=='null')return;if(e.data&&e.data.type==='NAVIN_STUDIO_INTRO_SKIP')skip()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')skip()});
 window.addEventListener('pagehide',()=>cancelAnimationFrame(raf));
-if(reduced){finish()}else{render(0);requestAnimationFrame(()=>play())}
+if(reduced){finish()}else{render(0);try{parent.postMessage({type:'NAVIN_STUDIO_INTRO_READY'},location.origin==='null'?'*':location.origin)}catch(_){}requestAnimationFrame(()=>play())}
 })();</script></body></html>
