@@ -58,7 +58,7 @@
 - [x] M4-B visual direction accepted for further development after actual desktop/mobile browser screenshot review; final physical-device/screen-reader acceptance still pending.
 - [x] M4-C zero-cost-first [protected API architecture](M4C_SECURITY_DECISION.md) researched against Cloudflare documentation.
 - [x] Dedicated read-only Worker API scaffold with exact Access app audience + stable owner UUID checks, public catalog read-model, narrow public GitHub source/CI endpoints and no write operations.
-- [x] 25 offline negative-auth/source integrity tests and dedicated GitHub PR CI; no production credentials or deployment.
+- [x] 27 offline negative-auth/source integrity tests and dedicated GitHub PR CI; no production credentials or deployment.
 - [ ] Configure real Cloudflare Access protected staging on a separately authorized owner account and test every production/preview route and session edge case (account setup requires approval).
 - [ ] Connect M4-B UI to secured API only after actual authorization checks pass; no fake live KPI data.
 - [~] Chromium design review passes at 1440/768/390/360/320px; owner visual sign-off, file-open, screen-reader and physical-device QA remain pending.
