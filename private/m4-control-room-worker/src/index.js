@@ -82,10 +82,14 @@ function allowlistedRepoPayload(project, data, observed) {
 }
 
 function ciPayload(project, data, observed) {
-  const run = Array.isArray(data.workflow_runs) ? data.workflow_runs[0] : null;
+  if (!Array.isArray(data.workflow_runs))
+    return { state:'unavailable', observed_at:observed, repository:project.repository };
+  const run = data.workflow_runs[0] || null;
   if (!run) return { state:'no_runs_found', observed_at:observed, repository:project.repository };
   const url = typeof run.html_url === 'string' ? run.html_url : '';
-  if (!url.startsWith('https://github.com/'+project.repository+'/actions/runs/'))
+  const expectedRunUrl = Number.isSafeInteger(run.id) && run.id > 0
+    ? 'https://github.com/'+project.repository+'/actions/runs/'+run.id : null;
+  if (!expectedRunUrl || url !== expectedRunUrl)
     return { state:'unavailable', observed_at:observed, repository:project.repository };
   return {
     state:'current', observed_at:observed, repository:project.repository,
