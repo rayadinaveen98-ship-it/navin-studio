@@ -49,7 +49,7 @@ class ProjectExperienceTests(unittest.TestCase):
     def test_project_view_integrates_existing_public_site(self):
         self.assertIn('data-view="project"', self.template)
         self.assertIn('id="project-experience-content"', self.template)
-        self.assertIn('class="project-experience"', self.template)
+        self.assertIn('class="container project-experience"', self.template)
         self.assertIn('data-project', self.app)
         self.assertIn('data-search-project', self.app)
 
