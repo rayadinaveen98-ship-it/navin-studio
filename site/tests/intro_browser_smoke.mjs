@@ -71,7 +71,10 @@ async function run(){
       const p=pending.get(m.id);pending.delete(m.id);
       m.error?p.reject(new Error(JSON.stringify(m.error))):p.resolve(m.result);
     }
-    if(m.method==='Runtime.exceptionThrown')jsErrors.push(m.params?.exceptionDetails?.text||'uncaught script error');
+    if(m.method==='Runtime.exceptionThrown'){
+      const d=m.params?.exceptionDetails||{};
+      jsErrors.push({text:d.text||'uncaught',url:d.url||'',line:d.lineNumber,column:d.columnNumber,description:d.exception?.description||'',stack:d.stackTrace?.callFrames?.slice(0,3)||[]});
+    }
   });
   await cdp('Page.enable');
   await cdp('Runtime.enable');
@@ -117,7 +120,8 @@ async function run(){
   check(await evaluate('document.querySelector("#studio-intro-shell").hidden===true'),'Reduced-motion path played the intro');
   check(await evaluate('!document.body.classList.contains("studio-intro-active")'),'Reduced-motion locked page');
 
-  check(jsErrors.length===0,'Unexpected browser script errors: '+jsErrors.join(' | '));
+  await writeFile(path.join(artifacts,'browser-exceptions.json'),JSON.stringify(jsErrors,null,2));
+  check(jsErrors.length===0,'Unexpected browser script errors: '+JSON.stringify(jsErrors));
   const result={ok:true,scenarios:['fresh-entry','desktop-handoff','skip','replay','SPA-route','mobile-handoff','mobile-overflow','reduced-motion'],uncaughtErrors:jsErrors};
   await writeFile(path.join(artifacts,'browser-smoke.json'),JSON.stringify(result,null,2));
   console.log('PASS: NAVIN STUDIO V3 + 8 Chrome smoke scenarios.');
