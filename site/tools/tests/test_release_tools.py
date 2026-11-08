@@ -26,7 +26,7 @@ PROJECT = {"id": "demo", "name": "Demo", "repository": REPO,
 CATALOG = {"schema_version": 1, "projects": [PROJECT]}
 RELEASE = {"tag_name": "v1", "draft": False, "prerelease": False,
            "published_at": "2026-11-08T00:00:00Z", "html_url": f"https://github.com/{REPO}/releases/tag/v1",
-           "assets": [{"name": "example.apk", "size": 9123, "state": "uploaded",
+           "assets": [{"id": 78945612, "name": "example.apk", "size": 9123, "state": "uploaded",
                        "browser_download_url": URL, "digest": f"sha256:{DIGEST}"}]}
 
 
@@ -109,6 +109,12 @@ class ProvenanceAndPacketTests(unittest.TestCase):
         for tag in ("../secret", "v1/bad", "%2F", ""):
             with self.assertRaises(ValueError):
                 resolve_tag_commit(REPO, tag, public_release_fetch)
+
+    def test_review_packet_retains_exact_published_apk_asset_id(self):
+        packet = prepare_packet(CATALOG, "demo", "v1", fetch=public_release_fetch)
+        self.assertEqual(packet["asset"]["asset_id"], 78945612)
+        self.assertEqual(packet["asset"]["github_reported_sha256"], DIGEST)
+        self.assertFalse(packet["required_manual_evidence"]["owner_publication_approval"])
 
     def test_packet_includes_provenance_but_no_approval(self):
         packet = prepare_packet(CATALOG, "demo", "v1", fetch=public_release_fetch,
