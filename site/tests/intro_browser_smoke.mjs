@@ -114,6 +114,14 @@ async function run(){
   // Existing site views use a 420ms entry fade; capture the settled design.
   await sleep(580);
   await snap('desktop-project-backlot.png');
+  // Capture actual lower-page editorial design, not only the hero.
+  await evaluate('document.querySelector(".px-story-grid").scrollIntoView({block:"start",behavior:"instant"})');
+  await sleep(190);
+  await snap('desktop-project-story.png');
+  await evaluate('document.querySelector(".px-explore").scrollIntoView({block:"start",behavior:"instant"})');
+  await sleep(190);
+  await snap('desktop-project-exploration.png');
+  await evaluate('window.scrollTo({top:0,behavior:"instant"})');
 
   // Related project navigation updates the URL and content; history remains usable.
   await evaluate('document.querySelector("#view-project .px-related-card").click()');
@@ -139,6 +147,14 @@ async function run(){
   check(await evaluate('document.querySelector("#view-project .px-hero")?.getBoundingClientRect().width <= window.innerWidth'),'Project hero clipped on mobile');
   await sleep(580);
   await snap('mobile-project-frame-one.png');
+  await evaluate('document.querySelector(".px-explore").scrollIntoView({block:"start",behavior:"instant"})');
+  await sleep(190);
+  await snap('mobile-project-exploration.png');
+  await evaluate('document.querySelector(".px-access").scrollIntoView({block:"start",behavior:"instant"})');
+  await sleep(190);
+  await snap('mobile-project-access.png');
+  check(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),'Mobile lower-page overflow');
+  await evaluate('window.scrollTo({top:0,behavior:"instant"})');
 
   await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   await openSite();
