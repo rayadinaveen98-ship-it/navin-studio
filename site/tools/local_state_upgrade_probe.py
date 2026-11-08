@@ -74,17 +74,19 @@ def require_emulator_root(*, run=subprocess.run) -> None:
 
 
 def read_welcome_version(*, run=subprocess.run, pause=time.sleep,
-                         attempts: int = 12) -> str:
+                         attempts: int = 12, expected: str | None = None) -> str:
     for i in range(attempts):
         try:
             raw = shell_adb(["shell", "cat", WELCOME_PREF], run, timeout=15)
-            return parse_welcome_version(raw)
+            actual = parse_welcome_version(raw)
+            if expected is None or actual == expected:
+                return actual
         except EmulatorError:
             if i == attempts - 1:
                 raise
         if i < attempts - 1:
             pause(1)
-    raise EmulatorError("Welcome preference was not written by CineRelay")
+    raise EmulatorError("CineRelay welcome preference did not reach expected version")
 
 
 def write_synthetic_probe(folder: Path, *, run=subprocess.run) -> str:
@@ -165,7 +167,8 @@ def probe_upgrade_state(catalog: dict, *, project: str, old_tag: str,
         check_installed_version(APP_PACKAGE, old_identity["version_code"], run=adb_run)
         launch(APP_PACKAGE, run=adb_run)
         pause(4)
-        prior_welcome = read_welcome_version(run=adb_run, pause=pause)
+        prior_welcome = read_welcome_version(run=adb_run, pause=pause,
+                                            expected=old_identity["version_name"])
         shell_adb(["shell", "am", "force-stop", APP_PACKAGE], adb_run)
         prior_probe = write_synthetic_probe(folder, run=adb_run)
 
@@ -180,7 +183,8 @@ def probe_upgrade_state(catalog: dict, *, project: str, old_tag: str,
         launch(APP_PACKAGE, run=adb_run)
         pause(4)
         # App writes the welcome version to the SAME SharedPreferences file.
-        new_welcome = read_welcome_version(run=adb_run, pause=pause)
+        new_welcome = read_welcome_version(run=adb_run, pause=pause,
+                                          expected=new_identity["version_name"])
         validate_state_flow(prior_welcome, new_welcome,
                             old_identity["version_name"], new_identity["version_name"],
                             prior_probe, marker_after)
