@@ -1,0 +1,145 @@
+name: Inspect real APK binaries (never publish)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/tools/inspect_apk.py'
+      - 'site/tools/tests/test_inspect_apk.py'
+      - '.github/workflows/inspect-apk.yml'
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: 'Project id from public catalog (e.g. cinerelay)'
+        required: true
+        type: string
+      tag:
+        description: 'Published GitHub Release tag (e.g. v0.2.9)'
+        required: true
+        type: string
+      asset:
+        description: 'Exact APK filename when release has several APKs'
+        required: false
+        type: string
+      expected_package:
+        description: 'Optional previously verified Android package ID'
+        required: false
+        type: string
+      expected_certificate:
+        description: 'Optional previously trusted signing cert SHA-256'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-apk-inspect-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  inspect:
+    name: Inspect exact APK candidate, no publishing
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Python safety and release tests
+        run: python3 -m unittest discover -s site/tools/tests -v
+
+      - name: Locate official Android SDK build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          if [[ -z "$sdk_root" ]]; then
+            echo "::error::Android SDK not available on this runner"
+            exit 1
+          fi
+          tools_dir=""
+          if [[ -d "$sdk_root/build-tools" ]]; then
+            while IFS= read -r candidate; do
+              if [[ -x "$candidate/apksigner" && -x "$candidate/aapt" ]]; then
+                tools_dir="$candidate"
+              fi
+            done < <(find "$sdk_root/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V)
+          fi
+          if [[ -z "$tools_dir" ]]; then
+            sdkmanager "build-tools;35.0.0"
+            tools_dir="$sdk_root/build-tools/35.0.0"
+          fi
+          test -x "$tools_dir/apksigner"
+          test -x "$tools_dir/aapt"
+          echo "STUDIO_APKSIGNER=$tools_dir/apksigner" >> "$GITHUB_ENV"
+          echo "STUDIO_AAPT=$tools_dir/aapt" >> "$GITHUB_ENV"
+
+      - name: Download and inspect candidate APKs read-only
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_KIND: ${{ github.event_name }}
+          PROJECT_ID: ${{ inputs.project_id }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          APK_ASSET: ${{ inputs.asset }}
+          EXPECTED_PACKAGE: ${{ inputs.expected_package }}
+          EXPECTED_CERTIFICATE: ${{ inputs.expected_certificate }}
+        run: |
+          set -euo pipefail
+          mkdir -p site/reports/inspections
+          failed=0
+          if [[ "$RUN_KIND" == "workflow_dispatch" ]]; then
+            args=(--project "$PROJECT_ID" --tag "$RELEASE_TAG" --apksigner "$STUDIO_APKSIGNER" --aapt "$STUDIO_AAPT" --output site/reports/inspections/requested.json)
+            if [[ -n "$APK_ASSET" ]]; then args+=(--asset "$APK_ASSET"); fi
+            if [[ -n "$EXPECTED_PACKAGE" ]]; then args+=(--expected-package "$EXPECTED_PACKAGE"); fi
+            if [[ -n "$EXPECTED_CERTIFICATE" ]]; then args+=(--expected-cert "$EXPECTED_CERTIFICATE"); fi
+            python3 site/tools/inspect_apk.py "${args[@]}" || failed=1
+          else
+            # First-merge bootstrap: two known public APK candidates.
+            python3 site/tools/inspect_apk.py --project cinerelay --tag v0.2.9 --apksigner "$STUDIO_APKSIGNER" --aapt "$STUDIO_AAPT" --output site/reports/inspections/cinerelay-v0.2.9.json || failed=1
+            python3 site/tools/inspect_apk.py --project frame-one --tag android-preview-latest --apksigner "$STUDIO_APKSIGNER" --aapt "$STUDIO_AAPT" --output site/reports/inspections/frame-one-preview.json || failed=1
+          fi
+          echo "INSPECTIONS_BLOCKED=$failed" >> "$GITHUB_ENV"
+
+      - name: Summarize binary evidence
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          from pathlib import Path
+          import json
+          print("## APK binary inspection — NOT owner-approved")
+          print()
+          print("| Project | Tag | State | Package | Version | Digest matched |")
+          print("| --- | --- | --- | --- | --- | --- |")
+          for p in sorted(Path("site/reports/inspections").glob("*.json")):
+              r=json.loads(p.read_text(encoding="utf-8"))
+              def clean(v):
+                  return str(v).replace("|", "/").replace("\r", " ").replace("\n", " ")[:110]
+              values=(r.get("project_id","?"), r.get("release_tag","?"),
+                  r.get("state","?"), r.get("android",{}).get("package_id","—"),
+                  r.get("android",{}).get("version_name","—"),
+                  r.get("downloaded_asset",{}).get("integrity_matches_github",False))
+              print("| " + " | ".join(map(clean,values)) + " |")
+          print()
+          print("**This does not certify publisher identity, install the APK, perform device QA, or authorize a website release.**")
+          PY
+
+      - name: Save JSON evidence only (never the APK)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unapproved-apk-binary-inspection
+          path: site/reports/inspections/*.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop on any missing or blocked verification
+        if: always()
+        shell: bash
+        run: |
+          if [[ "${INSPECTIONS_BLOCKED:-1}" != "0" ]]; then
+            echo "::error::APK inspection is blocked or incomplete. No approval granted."
+            exit 1
+          fi
+          echo "Byte and SDK checks passed. Device QA and owner approval still required."
