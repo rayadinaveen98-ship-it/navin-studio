@@ -101,7 +101,7 @@ async function run(){
   await sleep(300);
   check(await evaluate('document.querySelector("#studio-intro-shell").hidden===true'),'Internal navigation replayed opening');
 
-  await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,isMobile:true});
+  await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   await cdp('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
   await openSite();
   await until('document.querySelector("#studio-intro-shell")?.hidden===false',1800);
