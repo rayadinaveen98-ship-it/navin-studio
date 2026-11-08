@@ -6,6 +6,7 @@
  */
 import catalog from '../../../site/data/projects.json' with { type: 'json' };
 import releases from '../../../site/data/releases.json' with { type: 'json' };
+import { controlRoomHtml, controlRoomCss, controlRoomJs } from './control-room-bundle.js';
 
 const projectRows = Object.freeze((catalog.projects || []).map(({ id, name, repository, category, summary }) => Object.freeze({ id, name, repository, category, summary })));
 const projectsById = new Map(projectRows.map((p) => [p.id, p]));
@@ -26,6 +27,13 @@ const securityHeaders = Object.freeze({
 
 const json = (obj, code=200, extra={}) => new Response(JSON.stringify(obj), { status: code, headers: { ...securityHeaders, ...extra } });
 const error = (code, reason) => json({ ok:false, error:reason }, code, code===405 ? {allow:'GET'} : {});
+const privateUiCsp = "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'self'; img-src 'self' data:; font-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'";
+function protectedUi(path) {
+  const found = ({ '/control-room': [controlRoomHtml,'text/html; charset=utf-8'], '/control-room.js':[controlRoomJs,'text/javascript; charset=utf-8'], '/control-room.css':[controlRoomCss,'text/css; charset=utf-8'] })[path];
+  if (!found) return null;
+  return new Response(found[0], { status:200, headers:{ ...securityHeaders, 'content-type':found[1], 'content-security-policy':privateUiCsp } });
+}
+
 const configured = (env) => typeof env?.ACCESS_AUD === 'string' && env.ACCESS_AUD.length > 0 &&
   typeof env?.OWNER_USER_UUID === 'string' && env.OWNER_USER_UUID.length > 0;
 
@@ -113,6 +121,10 @@ export function createHandler({githubFetch=fetch, now=()=>new Date()}={}) {
     if (request.method !== 'GET') return error(405, 'read_only');
     const url = new URL(request.url);
     if (url.search) return error(400, 'query_not_supported');
+    // Only the Worker itself can serve UI assets; Cloudflare Static Assets would
+    // bypass this owner check and can strip ctx.access. No ASSETS binding is used.
+    const ui = protectedUi(url.pathname);
+    if (ui) return ui;
     const observed = isoObserved(now);
 
     if (url.pathname === '/api/me')
