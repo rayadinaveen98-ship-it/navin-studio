@@ -1,56 +1,71 @@
-# Roadmap — NAVIN STUDIO
+# NAVIN STUDIO — product and engineering roadmap
 
-Updated: 2026-11-08  
-Legend: [x] completed, [~] in progress, [ ] not started.
+**Updated:** 2026-11-08  
+**Project:** NAVIN STUDIO itself — not the internal roadmap of any showcased application.  
+**Status convention:** [x] Verified, [~] in review/in progress, [ ] pending.
 
-## M0 — Foundation
-- [x] Public GitHub repository located and verified.
-- [x] README and working product brief established.
-- [x] Document public/private boundaries and release gate.
-- [x] Register candidate projects with draft / no-public-release defaults.
-- [x] Review high-fidelity screen directions — web, mobile and command center prototypes accepted on 2026-11-08.
-- [~] Design direction and responsive information architecture approved; working brand name remains provisional.
+## M0 — Product foundation [x]
 
-**Exit gate:** Owner approves realistic desktop/mobile visuals; data and publication policy reviewed.
+- [x] Studio repository, product vision and development decision boundaries documented.
+- [x] Candidate public catalog of eight creations, all without invented release metrics.
+- [x] Public / private data boundary and owner-only publication policy established.
+- [x] Cinematic editorial visual direction and responsive information architecture selected.
+- [~] `NAVIN STUDIO` brand name and identity remain a working direction until formally finalized.
 
-## M1 — Public shell
-- [x] Implement initial approved responsive public web shell, Home/Creations/Updates/Studio/Journal and project detail dialogs (draft PR #5).
-- [~] Accessible skip link, motion preferences and empty states implemented; full screen-reader audit and performance profiling outstanding.
-- [~] Catalog-backed public development previews validated; all software-release links remain unapproved/absent.
-- [~] Local screenshots and interaction smoke tests at 1440px, 390px and 360px passed; deployed-browser and physical-device QA outstanding.
+## M1 — Public studio site and signature opening [x]
 
-**Exit gate:** Works locally with complete state coverage; no placeholder downloads or fake metrics.
+- [x] Public home, Creations, Updates, Studio and Journal pages implemented and deployed to GitHub Pages.
+- [x] Director's Cut / Living Architecture V3 five-second cinematic opening integrated into the actual homepage.
+- [x] Skip, Replay, reduced-motion, mobile and real Chrome browser smoke checks passed.
+- [x] Public-only build reproducibility, allowlist and no-unapproved-download tests passed.
+- [ ] Final independent physical device and screen-reader accessibility review.
 
-## M2 — Verified release center
-- [ ] GitHub Releases read-model for approved projects.
-- [ ] Actual tag/asset mapping, checked download links, changelog and hash display.
-- [ ] Stable/beta segmentation and manual approval mechanism.
-- [ ] No-release, 404, rate-limit and stale-cache behavior tests.
+**Live:** https://rayadinaveen98-ship-it.github.io/navin-studio/  
+**Evidence:** [PR #22](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/22), [Chrome QA](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42496663370), [Pages publication](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42496763077).
 
-**Exit gate:** Owner checks an actual APK download on a device and approves displayed metadata.
+## M2 — Studio release trust and verification [~]
 
-## M3 — Experiences and launch
-- [ ] Host/launch first real working web demo (only with working artifact).
-- [ ] Journal and studio update timeline.
-- [ ] Security, mobile performance, SEO, accessibility and launch checklist.
-- [ ] Deploy public site to an approved free-tier host; verify real URL.
+- [x] Read-only GitHub release discovery, precise asset identities, SHA-256, signing and Android smoke/upgrade verification infrastructure.
+- [x] Release-review tooling and public publication allowlist verified. CineRelay served solely as an engineering test case.
+- [x] Real Android emulator verification of narrow local-state compatibility for a previously published CineRelay APK.
+- [x] Site release manifest refuses unapproved download links.
+- [ ] Owner-approved exact downloadable build, physical-device validation, authenticated feature QA and release-signing custody review.
+- [ ] Public distribution of the first fully approved app, if and when all gates are satisfied.
 
-## M4 — Private command center
-- [ ] Design admin auth and storage; zero public-data leakage.
-- [ ] Source-backed project status, QA evidence and release approval.
-- [ ] Transparent analytics with source/timestamp labels.
+**Important:** the studio currently has **zero owner-approved public APK downloads**. A successful emulator QA run does not authorize release.
 
-## M5 — Studio intelligence
-- [ ] Scoped assistant with source citations and no fake project state.
-- [ ] Approved cross-app integrations and optional update subscriptions.
+## M3 — Premium public project experiences [~] CURRENT
 
-## Scope control
-M0/M1 do not grow to include login, AI chat, editable roadmap, e-commerce or paid APIs. Changes require a new product decision note and re-evaluation of delivery risk.
+- [x] Eight cinematic editorial project pages implemented in a **draft review branch**.
+- [x] Shareable `#project/<id>` URLs, browser Back/Forward, related project discovery and meaningful source links.
+- [x] Explicit separation between creative intentions and shipped feature claims; accurate no-approved-download disclosure.
+- [x] Responsive layout, reduced-motion style and project-specific visual direction that retains the approved studio identity.
+- [~] Static CI, real Chrome desktop/mobile design QA and screenshot review.
+- [ ] **Owner approves the new project-page visuals.**
+- [ ] Merge M3 PR and verify the actual live site only after owner approval.
 
-## Current review checkpoint — 2026-11-08
+**Review:** [PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [design truth and QA checklist](M3_PROJECT_STORIES.md).
 
-- Approved experience prototypes: public web, mobile-native visual direction, and private Creator Command Center visual direction.
-- **First code milestone:** public website M1 on draft PR #5 (`feature/public-web-m1`). It is **not merged and not deployed**.
-- **QA:** checked-in standalone build reproducibility verified; local responsive interaction checks passed. Browser network navigation limits mean hosted-site testing still needs completion.
-- **Release safety:** 8 candidate project previews; 0 approved public APKs; 0 downloads advertised.
-- **Next engineering gates:** merge only after review, stage on an approved free host, test direct navigation and accessibility, then implement M2 verified release ingestion with owner approval.
+## M4 — Private Creator Command Center [ ] NEXT MAJOR PRODUCT
+
+- [ ] Lock access model and trusted backend/storage strategy before exposing any control interface.
+- [ ] Source-backed project status dashboard with real timestamps, QA links and audit history.
+- [ ] Owner-authorized release review/approval workflow; strict separation from public presentation.
+- [ ] Studio calendar / decisions / roadmap editing only after authenticated storage and permissions are genuinely available.
+- [ ] Desktop/mobile design approval and realistic operational testing.
+
+**Hard boundary:** a public static page with a client-side password or hidden route **is not** an acceptable owner-only command center.
+
+## M5 — Studio intelligence and cross-project orchestration [ ]
+
+- [ ] Verified, explicitly approved integrations with Backlot, Frame One, CineRelay and future apps.
+- [ ] Source-cited studio assistant; no invented build state, metrics, release versions or task completion.
+- [ ] Optional notifications, analytics and update subscriptions only with a consent and data-handling design.
+
+## Working rules
+
+- Stay on the approved studio milestone; avoid drifting into building an individual app under the studio task.
+- Preserve approved art direction throughout code and screenshot QA; no unreviewed production redesigns.
+- Never publish credentials, private analytics, signing materials, unreleased APKs or unapproved releases.
+- Branch, test and show visual evidence before merging meaningful user-facing design changes.
+- Use real CI, real browser screenshots, and owner sign-off—not progress narration—as evidence of completion.
