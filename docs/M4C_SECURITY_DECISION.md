@@ -47,7 +47,7 @@ These are public service offerings, not a guarantee the user's account has a par
 
 - [x] Public provider feasibility researched with official documentation.
 - [x] Read-only authenticated-by-context API and ownership checks implemented.
-- [x] 25 offline unit/security contract tests pass.
+- [x] 27 offline unit/security contract tests pass.
 - [x] Dedicated CI checks configured.
 - [ ] Owner approves account/provider and configures Access app protected for previews and production.
 - [ ] Real Access identity and audience configured without committing identity identifiers.
