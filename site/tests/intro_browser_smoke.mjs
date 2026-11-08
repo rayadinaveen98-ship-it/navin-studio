@@ -111,6 +111,8 @@ async function run(){
   check(await evaluate('document.querySelectorAll("#view-project .px-facet").length===3'),'Missing creative-focus sections');
   check(await evaluate('document.querySelector("#view-project .px-access")?.textContent.includes("No studio-approved public download")'),'Unapproved release disclosure missing');
   check(await evaluate('document.querySelector("#view-project a.px-button-primary")?.href.includes("github.com/rayadinaveen98-ship-it/framebynavin-android")'),'Public source link mismatch');
+  // Existing site views use a 420ms entry fade; capture the settled design.
+  await sleep(580);
   await snap('desktop-project-backlot.png');
 
   // Related project navigation updates the URL and content; history remains usable.
@@ -135,6 +137,7 @@ async function run(){
   await until('location.hash==="#project/frame-one" && document.querySelector("#project-story-title")?.textContent==="Frame One"',2000);
   check(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),'Project page caused mobile horizontal overflow');
   check(await evaluate('document.querySelector("#view-project .px-hero")?.getBoundingClientRect().width <= window.innerWidth'),'Project hero clipped on mobile');
+  await sleep(580);
   await snap('mobile-project-frame-one.png');
 
   await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
