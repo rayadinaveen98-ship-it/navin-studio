@@ -1,0 +1,40 @@
+name: Public site validation
+
+on:
+  pull_request:
+    paths:
+      - 'site/**'
+      - '.github/workflows/public-site-checks.yml'
+      - '.github/workflows/publish-pages.yml'
+      - '.github/workflows/release-watch.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - '.github/workflows/public-site-checks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  site-validation:
+    name: Validate static site and release gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check reproducible frontend build
+        run: python3 site/build.py --check
+      - name: Verify catalog and approval manifest
+        run: python3 site/tests/validate.py
+      - name: Verify JavaScript syntax
+        run: node --check site/src/app.js
+      - name: Test release watcher, digest gate and publish allowlist
+        run: python3 -m unittest discover -s site/tools/tests -v
+      - name: Audit exact approved GitHub release assets
+        # Zero approved releases do not initiate any network calls.
+        run: python3 site/tools/verify_release_assets.py
+      - name: Build public-only Pages artifact
+        run: python3 site/tools/build_dist.py --output "${RUNNER_TEMP}/studio-preview"
+      - name: Show build sizes
+        run: du -ah "${RUNNER_TEMP}/studio-preview" | sort -h | tail -n 10
