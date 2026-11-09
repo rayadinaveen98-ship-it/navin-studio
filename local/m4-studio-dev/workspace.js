@@ -216,7 +216,8 @@ async function loadProject(id,{navigate=false}={}){
   if(current!==requestNumber)return;
   if(payload.project_id!==id)throw Error('mismatched_project');
   applyWorkspace(payload);
- }catch{if(current===requestNumber)applyError(id)}
+  if(navigate){$('projectTitle').focus({preventScroll:true});}
+ }catch{if(current===requestNumber){applyError(id);if(navigate){$('projectTitle').focus({preventScroll:true});}}}
  finally{if(current===requestNumber){$('refreshWorkspace').disabled=false;$('workspaceMain').setAttribute('aria-busy','false')}}
 }
 async function boot(){
