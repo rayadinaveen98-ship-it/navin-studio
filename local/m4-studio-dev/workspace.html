@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b0c11">
+  <title>Project Workspace — NAVIN STUDIO / Local</title>
+  <link rel="stylesheet" href="/workspace.css">
+  <script src="/workspace.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspaceMain">Skip to main content</a>
+  <div class="local-ribbon" id="ribbon">M4-D3 <span class="ribbon-split">/</span> LOCAL DEVELOPMENT <span class="ribbon-split">/</span> PUBLIC DATA OR SIMULATED FIXTURES <span class="ribbon-split">/</span> NO LOGIN OR REMOTE WRITES</div>
+  <div class="workspace-layout">
+    <aside class="rail" aria-label="Project navigator">
+      <a class="brand" href="/" aria-label="Back to Studio overview"><span class="brand-glyph"><i></i><i></i><i></i></span><span>NAVIN <em>STUDIO</em></span></a>
+      <a class="back-to" href="/studio-home"><span aria-hidden="true">←</span> Studio Home</a>
+      <div class="rail-kicker">THE ARCHIVE / <span>08 FILES</span></div>
+      <nav id="projectNavigation" aria-label="Project workspaces" class="project-navigation"><p class="nav-loading">Loading catalog…</p></nav>
+      <div class="rail-bottom"><div class="rail-accent"></div><strong>OBSERVE. VERIFY. CREATE.</strong><span>Local source review only.<br>No private cloud account connected.</span></div>
+    </aside>
+    <div class="content-shell">
+      <header class="topbar">
+        <div class="breadcrumb"><span class="eyebrow">THE CONTROL ROOM</span><span class="slash">/</span><span>PROJECT WORKSPACE</span><span class="slash">/</span><strong id="crumbProject">LOADING</strong></div>
+        <div class="topbar-actions"><span id="modeChip" class="mode-chip" aria-live="polite">CHECKING MODE</span><button id="refreshWorkspace" type="button" class="refresh-btn" disabled><span aria-hidden="true">↻</span> Refresh source</button></div>
+      </header>
+      <main id="workspaceMain" class="main" tabindex="-1" aria-busy="true">
+        <section class="hero" aria-labelledby="projectTitle">
+          <div class="hero-inner"><div class="hero-topline"><span class="red-line" aria-hidden="true"></span><span id="projectNumber">PROJECT DOSSIER</span><span class="hero-file">NAVIN STUDIO / PROJECT FILE</span></div>
+          <div class="hero-head"><div><div class="hero-kind" id="projectKind">STUDIO PROJECT</div><h1 id="projectTitle" tabindex="-1">Loading workspace<span class="period">.</span></h1><p class="hero-summary" id="projectSummary">Retrieving the local public-source catalog.</p></div><div class="hero-emblem" aria-hidden="true"><span id="projectEmblem">N</span></div></div>
+          <div class="hero-footer"><span id="projectRepository">SOURCE NOT YET VERIFIED</span><a id="repoLink" class="repo-link hidden" href="#" rel="noopener noreferrer" target="_blank">VIEW REPOSITORY <span aria-hidden="true">↗</span></a></div></div>
+          <div class="hero-glow" aria-hidden="true"></div>
+        </section>
+        <div id="evidenceBar" class="evidence-bar" role="status" aria-live="polite"><span class="evidence-dot"></span><div><strong id="evidenceTitle">Contacting source adapter</strong><p id="evidenceDetail">This is a read-only local development session.</p></div><span class="evidence-no-cloud">NO CLOUD SYNC</span></div>
+        <section class="metric-grid" aria-label="Project evidence summary">
+          <div class="metric"><span>REPOSITORY SIGNAL</span><strong id="repoState">—</strong><small id="repoSignalNote">Checking</small></div>
+          <div class="metric"><span>LAST VERIFIED COMMIT</span><strong id="latestSha" class="mono">—</strong><small id="commitSignalNote">Not observed</small></div>
+          <div class="metric"><span>PR RECORDS RETURNED</span><strong id="pullCount" class="mono">—</strong><small id="prSignalNote">At most five; not the total</small></div>
+          <div class="metric"><span>BUILD READINESS</span><strong>Unknown</strong><small>No APK inference from GitHub</small></div>
+        </section>
+        <div class="section-intro"><div><span class="eyebrow">SOURCE INTELLIGENCE / 01</span><h2>Development evidence<span>.</span></h2></div><p>Only public GitHub evidence, carefully separated from interpretation.</p></div>
+        <section class="evidence-grid" aria-label="Repository development activity">
+          <article class="panel" aria-labelledby="commitTitle"><div class="panel-head"><div><div class="panel-kicker">RECENT CHANGES / UP TO 05</div><h3 id="commitTitle">Commit stream</h3></div><span id="commitsTag" class="state-tag">AWAITING</span></div><ol id="commitList" class="event-list"><li class="empty-item">Waiting for source…</li></ol><div class="panel-footer">Commits reflect public repository history. They do not measure completion.</div></article>
+          <article class="panel" aria-labelledby="pullTitle"><div class="panel-head"><div><div class="panel-kicker">REVIEW SIGNALS / UP TO 05</div><h3 id="pullTitle">Pull request radar</h3></div><span id="pullsTag" class="state-tag">AWAITING</span></div><ol id="pullList" class="event-list"><li class="empty-item">Waiting for source…</li></ol><div class="panel-footer">Recent pull requests are not a release approval queue.</div></article>
+        </section>
+        <section class="quality-section" id="quality-observatory" aria-label="Build and QA Observatory">
+          <div class="section-intro quality-intro"><div><span class="eyebrow">DELIVERY INTELLIGENCE / 02</span><h2>Build &amp; QA<span>.</span></h2></div><p>Exact public GitHub Actions evidence, never a promise that an Android build is ready.</p></div>
+          <div class="quality-header">
+            <div class="quality-lead"><span class="quality-orbit" aria-hidden="true">◎</span><div><div class="quality-eyebrow">THE WORKFLOW OBSERVATORY</div><h3>Signals, not assumptions.</h3><p id="qualitySourceNote">Choose Load workflows to request up to five source-backed GitHub runs. No results are cached as verified.</p></div></div>
+            <button class="quality-action" type="button" id="qualityRefresh" disabled>Load workflow evidence <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="quality-stat-grid" aria-label="Workflow evidence summary">
+            <div class="quality-stat"><small>LATEST WORKFLOW</small><strong id="qualityLastStatus">—</strong><span id="qualityLastNote">Not requested</span></div>
+            <div class="quality-stat"><small>RUN RECORDS RETURNED</small><strong id="qualityRunCount" class="mono">—</strong><span>Maximum five, not all-time builds</span></div>
+            <div class="quality-stat"><small>APK RELEASE EVIDENCE</small><strong class="quality-unknown">Unverified</strong><span>CI success cannot confirm signing or device QA</span></div>
+          </div>
+          <div class="quality-grid">
+            <article class="quality-panel" aria-labelledby="qualityRunsTitle"><div class="quality-panel-head"><div class="panel-kicker">GITHUB ACTIONS / LAST 05</div><div class="quality-titleline"><h3 id="qualityRunsTitle">Workflow run history</h3><span id="qualityRunsTag" class="state-tag" data-state="loading">NOT REQUESTED</span></div></div><ol id="qualityRunList" class="quality-run-list" aria-live="polite"><li class="quality-empty">No workflow evidence requested yet. Results remain unknown.</li></ol><div class="quality-panel-foot">Each result links to its exact workflow run and commit; job details are optional.</div></article>
+            <article class="quality-panel job-inspector" aria-labelledby="qualityJobsTitle"><div class="quality-panel-head"><div class="panel-kicker">RUN DETAIL / ON DEMAND</div><h3 id="qualityJobsTitle">Job inspection</h3><p id="qualityJobsNote">Select a real run to inspect up to ten GitHub Actions job outcomes.</p></div><ol id="qualityJobList" class="quality-job-list" aria-live="polite"><li class="quality-empty">Select “Inspect jobs” on a verified run. Demo examples cannot request real job evidence.</li></ol></article>
+          </div>
+          <div class="quality-trustline"><span class="trust-symbol" aria-hidden="true">✳</span><span>VERIFICATION RULE: CI RESULT ≠ SIGNED APK ≠ PHYSICAL DEVICE TEST ≠ OWNER RELEASE APPROVAL.</span><span id="qualityObserved">NO LIVE OBSERVATION</span></div>
+        </section>
+        <section class="bottom-grid" aria-label="Project reference and planning status">
+          <article class="reference-card"><div class="panel-kicker">REPOSITORY / REFERENCE SHEET</div><div class="reference-heading"><h3>Source profile</h3><span class="ref-mark" aria-hidden="true">↗</span></div><dl class="source-properties"><div><dt>Default branch</dt><dd id="defaultBranch">Unknown</dd></div><div><dt>Repository updated</dt><dd id="updatedAt">Not observed</dd></div><div><dt>Archived</dt><dd id="archivedState">Unknown</dd></div><div><dt>Evidence captured</dt><dd id="observedAt">Not observed</dd></div></dl></article>
+          <article class="planning-card"><div class="panel-kicker">LOCAL PROJECT MANAGEMENT / M4-E2</div><h3>Tasks & milestones<span>.</span></h3><p class="planning-text">Plan real tasks, milestone checkpoints and decisions on this computer. Project source evidence remains independently verified.</p><div class="planning-divider"></div><div class="planning-bottom"><span class="planning-round">○</span><a id="projectOperationsLink" href="/studio-operations/backlot">OPEN LOCAL PROJECT OPERATIONS ↗</a></div></article>
+        </section>
+        <footer class="workspace-footer"><span>NAVIN STUDIO / PROJECT OBSERVATORY</span><span>Read-only public data · zero remote writes · nothing published</span></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

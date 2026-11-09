@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b0c11">
+<title>Project Operations · NAVIN STUDIO / Local</title>
+<link rel="stylesheet" href="/workspace.css"><link rel="stylesheet" href="/studio-vault.css"><link rel="stylesheet" href="/studio-operations.css"><script src="/studio-operations.js" defer></script>
+</head><body>
+<a class="skip-link" href="#operationsMain">Skip to main content</a>
+<div class="local-ribbon">M4-E2 <span class="ribbon-split">/</span> LOCAL PROJECT MANAGEMENT <span class="ribbon-split">/</span> SAVED ON THIS COMPUTER <span class="ribbon-split">/</span> NO CLOUD OR GITHUB WRITES</div>
+<div class="workspace-layout">
+ <aside class="rail vault-rail" aria-label="Studio navigation"><a class="brand" href="/studio-home"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>NAVIN <em>STUDIO</em></span></a>
+ <a class="back-to" href="/studio-home"><span aria-hidden="true">←</span> Studio Home</a>
+ <div class="rail-kicker">STUDIO OPERATIONS / <span>ON DEVICE</span></div>
+ <nav class="vault-navigation" aria-label="Studio views"><a href="/studio-home">◈ <span>Studio Home</span></a><a href="/studio-planning">▦ <span>Studio Planning</span></a><a href="/studio-operations" aria-current="page">◎ <span>Project Operations</span></a><a href="/studio-vault">▤ <span>Local Vault</span></a><a href="/studio-backup">⬡ <span>Backup & Restore</span></a><a href="/workspace/backlot">▦ <span>Source Workspaces</span></a><a href="/">◇ <span>Control Room</span></a></nav>
+ <div class="rail-bottom"><div class="rail-accent"></div><strong>MAKE PROGRESS VISIBLE.</strong><span>Your tasks, decisions and milestones are local-only. They are not verified GitHub progress or published plans.</span></div>
+ </aside>
+ <div class="content-shell"><header class="topbar"><div class="breadcrumb"><span class="eyebrow">NAVIN STUDIO</span><span class="slash">/</span><strong>PROJECT OPERATIONS</strong></div><div class="topbar-actions"><span class="mode-chip">ON-DEVICE · UNSYNCED</span><a class="refresh-btn" href="/studio-vault">Open Vault ↗</a></div></header>
+ <main class="main vault-main" id="operationsMain" tabindex="-1">
+  <section class="vault-hero ops-hero"><div class="vault-hero-copy"><div class="hero-topline"><span class="red-line"></span>FROM CONCEPT TO DELIVERY / 02</div><h1>Make the work<br><span>move forward.</span></h1><p>A real local planning space for project tasks, milestones and decisions—built separately from public GitHub evidence.</p></div><div class="ops-orbit" aria-hidden="true"><div class="ops-orbit-inner">N<span>/O</span></div><small>THE STUDIO WORKFLOW</small></div></section>
+  <div class="vault-state" data-state="loading" id="operationsState" role="status" aria-live="polite"><span class="vault-state-dot" aria-hidden="true"></span><div><strong id="operationsTitle">Loading project plans</strong><p id="operationsDetail">Reading local data without contacting GitHub.</p></div><button id="operationsRefresh" class="vault-quiet" type="button">Refresh</button></div>
+  <section class="ops-project-bar" aria-label="Selected project"><div><span class="vault-panel-kicker">PROJECT FILE / LOCAL PLAN</span><label for="projectPicker" class="ops-picker-label">Your project</label><select id="projectPicker" aria-label="Choose project"><option>Loading…</option></select></div><div class="ops-project-quick"><a id="publicSourceLink" class="vault-quiet" href="/workspace/backlot">View verified source ↗</a><p>Local plans are not evidence that a build was completed.</p></div></section>
+  <section class="ops-metrics" aria-label="Local project planning summary"><div><small>TASKS</small><strong id="taskMetric">—</strong><span id="taskCaption">Loading</span></div><div><small>MILESTONES</small><strong id="milestoneMetric">—</strong><span id="milestoneCaption">Loading</span></div><div><small>DECISIONS</small><strong id="decisionMetric">—</strong><span id="decisionCaption">Loading</span></div><div><small>DATA BOUNDARY</small><strong class="ops-metric-small">Local only</strong><span>No cloud backup or encryption</span></div></section>
+  <div class="vault-workspace-grid ops-columns">
+   <section class="vault-compose ops-composer" aria-labelledby="opsFormTitle"><div class="vault-panel-kicker">MAKE A MOVE / 01</div><h2 id="opsFormTitle">Create an item<span>.</span></h2><p class="vault-description">Use a task for next actions, a milestone for a meaningful checkpoint, or a decision to capture an agreed direction.</p>
+    <form id="operationsForm">
+     <label for="recordKind">Record type</label><select id="recordKind"><option value="task">Task</option><option value="milestone">Milestone</option><option value="decision">Decision</option></select>
+     <label for="recordTitle">Title</label><input id="recordTitle" required maxlength="140" placeholder="A concrete next step…" autocomplete="off">
+     <label for="recordStatus">Status</label><select id="recordStatus" required></select>
+     <label for="recordDue">Target date <span class="optional">optional</span></label><input id="recordDue" type="date">
+     <label for="recordDetails">Context <span class="optional">optional</span></label><textarea id="recordDetails" maxlength="4000" rows="5" placeholder="Why it matters, scope, or evidence still required…"></textarea>
+     <div class="vault-compose-actions"><button class="vault-primary" type="submit" id="operationsSave">Save locally ↗</button><button class="vault-quiet hidden" type="button" id="operationsCancel">Cancel edit</button></div>
+    </form><p class="vault-form-note">Edits record a title/status history. Deleting permanently removes the entire item and its history. Manual backups are now available in Backup & Restore.</p>
+   </section>
+   <section class="vault-library ops-board" aria-labelledby="opsBoardTitle"><div class="vault-library-top"><div><div class="vault-panel-kicker">YOUR PROJECT BOARD / 02</div><h2 id="opsBoardTitle">What matters<span>.</span></h2></div><span class="vault-count" id="recordCount">—</span></div><div class="ops-filter-row"><label for="recordFilter">Show</label><select id="recordFilter"><option value="all">All records</option><option value="task">Tasks</option><option value="milestone">Milestones</option><option value="decision">Decisions</option></select></div>
+    <ol id="operationsList" class="vault-records ops-list" aria-live="polite"><li class="vault-empty">Reading your plans…</li></ol>
+   </section>
+  </div>
+  <section class="ops-notes" aria-labelledby="opsNotesTitle"><div><div class="vault-panel-kicker">CROSS-LINKED / LOCAL VAULT</div><h2 id="opsNotesTitle">Project notes & drafts<span>.</span></h2><p>Your existing E1 notes and decision drafts appear here under the same project. Edit them in the Local Vault.</p></div><div><ul id="linkedNotes" class="ops-note-list" aria-live="polite"><li>Loading project notes…</li></ul><a class="vault-quiet" href="/studio-vault">Open Local Vault ↗</a></div></section>
+  <div class="vault-footnote"><span aria-hidden="true">◇</span><div><strong>Local plans are not the source of truth for app releases</strong><p>A completed task or milestone is your planning state, not proof of a signed APK, a successful CI run or physical-device QA. This app does not push changes to GitHub.</p></div></div>
+  <footer class="workspace-footer"><span>NAVIN STUDIO / PROJECT OPERATIONS / M4-E2</span><span>NO REMOTE WRITES · NO CLOUD SYNC · NO ENCRYPTION</span></footer>
+ </main></div>
+</div></body></html>

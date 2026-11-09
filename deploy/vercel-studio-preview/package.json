@@ -1,0 +1,17 @@
+{
+  "name": "navin-studio-vercel-protected-preview",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check build.mjs && node --check src/studio-cloud-entry.mjs && node --check lib/cloud-store.mjs && node --check studio-home.js && node --check workspace.js && node --test tests/*.test.mjs",
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/auth": "0.7.0-beta"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

@@ -1,0 +1,35 @@
+NAVIN STUDIO — M4-E3 STUDIO PLANNING
+===================================
+
+1. Install Node.js 22+ if needed (https://nodejs.org/).
+2. Extract this entire ZIP into a normal folder, not inside ZIP preview.
+3. Close any older NAVIN STUDIO local server using port 4173.
+4. Double-click OPEN-STUDIO-PLANNING.bat.
+5. Open http://127.0.0.1:4173/studio-planning if your browser does not open automatically.
+6. Set a date, choose a project, create a daily priority or a timed work block.
+7. Try Mark done / Edit / Delete, switch calendar dates, refresh, and restart.
+8. To link an existing project task, create it under Project Operations first.
+
+OTHER ENTRY POINTS
+OPEN-PROJECT-OPERATIONS.bat
+OPEN-LOCAL-VAULT.bat
+OPEN-DEMO.bat
+OPEN-PUBLIC-GITHUB.bat
+
+YOUR LOCAL DATA FOLDER ON WINDOWS
+%LOCALAPPDATA%\NavinStudio\ControlRoom\
+- studio-drafts.v1.json (E1 notes; remains unchanged)
+- project-operations.v1.json (E2 tasks, milestones, decisions; remains unchanged)
+- studio-planning.v1.json (E3 daily priorities and time blocks; new file)
+
+IMPORTANT
+- Files are not encrypted, synchronized or automatically backed up.
+- Do not place credentials or highly sensitive data in these drafts.
+- E4 will handle export/import/restore with checks.
+- Never expose the local port to your network or the internet.
+- Planning completion does NOT approve an APK or update a GitHub repository.
+- No Cloudflare, payments, accounts, remote writes or hosting required.
+
+M4-E4: OPEN-STUDIO-BACKUP.bat opens the manual backup/restore screen.
+Download the backup and keep it somewhere private; JSON is not encrypted.
+Restoring replaces all local Vault, Operations and Planning records, with a safety copy.

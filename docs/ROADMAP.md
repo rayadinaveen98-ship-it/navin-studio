@@ -1,6 +1,6 @@
 # NAVIN STUDIO — product and engineering roadmap
 
-**Updated:** 2026-11-08  
+**Updated:** 2026-11-09  
 **Project:** NAVIN STUDIO itself — not the internal roadmap of any showcased application.  
 **Status convention:** [x] Verified, [~] in review/in progress, [ ] pending.
 
@@ -34,33 +34,88 @@
 
 **Important:** the studio currently has **zero owner-approved public APK downloads**. A successful emulator QA run does not authorize release.
 
-## M3 — Premium public project experiences [~] CURRENT
+## M3 — Premium public project experiences [~] CODE MERGED / MANUAL QA PENDING
 
-- [x] Eight cinematic editorial project pages implemented in a **draft review branch**.
+- [x] Eight cinematic editorial project pages merged to `main` after owner visual review ([PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23)).
 - [x] Shareable `#project/<id>` URLs, browser Back/Forward, related project discovery and meaningful source links.
 - [x] Explicit separation between creative intentions and shipped feature claims; accurate no-approved-download disclosure.
 - [x] Responsive layout, reduced-motion style and project-specific visual direction that retains the approved studio identity.
-- [~] Static CI, real Chrome desktop/mobile design QA and screenshot review.
-- [ ] **Owner approves the new project-page visuals.**
-- [ ] Merge M3 PR and verify the actual live site only after owner approval.
+- [x] Static CI and expanded 17-scenario real Chrome desktop/mobile QA passed; screenshots reviewed.
+- [x] Owner approves the reviewed project-page visuals.
+- [x] M3 PR merged as commit `cecb3060c0ff3f762d005bed1ab5c0bdd197c171`; GitHub Pages [publish workflow](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42504957343) succeeded.
+- [ ] Independent public URL browser retrieval / physical Android / screen-reader verification remain outstanding; deployment workflow success alone does not prove those manual checks.
 
-**Review:** [PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [design truth and QA checklist](M3_PROJECT_STORIES.md).
+**Evidence:** [Merged PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [M3 reviewed design / QA](M3_VISUAL_QA.md), [hosted publish workflow](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42504957343).
 
-## M4 — Private Creator Command Center [ ] NEXT MAJOR PRODUCT
+## M4 — Creator Command Center [~] OFFLINE-FIRST DEVELOPMENT
 
-- [ ] Lock access model and trusted backend/storage strategy before exposing any control interface.
-- [ ] Source-backed project status dashboard with real timestamps, QA links and audit history.
-- [ ] Owner-authorized release review/approval workflow; strict separation from public presentation.
-- [ ] Studio calendar / decisions / roadmap editing only after authenticated storage and permissions are genuinely available.
-- [ ] Desktop/mobile design approval and realistic operational testing.
+**Locked direction (2026-11-09):** [ADR-005 — offline-first / no-card decision](M4_OFFLINE_FIRST_DECISION.md). **Cloudflare setup, payment details and any hosted private-login deployment are explicitly deferred.** This is a development-order change, not a claim that the private dashboard is already live.
 
-**Hard boundary:** a public static page with a client-side password or hidden route **is not** an acceptable owner-only command center.
+### M4-A — Product architecture and source inventory [x]
 
-## M5 — Studio intelligence and cross-project orchestration [ ]
+- [x] Define public-vs-private trust boundary, owner dashboard structure, provenance rules and release-approval gate: [M4 spec](M4_PRIVATE_COMMAND_CENTER.md).
+- [x] Inventory eight real source repositories; only public metadata may enter local source previews: [source inventory](M4_SOURCE_INVENTORY.md).
+- [x] Lock Director's Cut visual system as the baseline; the `NAVIN STUDIO` brand name itself is still a working direction.
 
-- [ ] Verified, explicitly approved integrations with Backlot, Frame One, CineRelay and future apps.
-- [ ] Source-cited studio assistant; no invented build state, metrics, release versions or task completion.
-- [ ] Optional notifications, analytics and update subscriptions only with a consent and data-handling design.
+### M4-B — Interactive Control Room prototype [x] / manual acceptance [~]
+
+- [x] Five frontend screens: Overview, Projects, Release Desk, Decisions, Studio Log.
+- [x] Interactive search, category filters, project details, navigation, mobile layouts; [visual review and browser QA](M4_VISUAL_REVIEW.md).
+- [x] Owner accepted the direction to continue; screenshot evidence and code committed in [draft PR #24](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/24).
+- [ ] Final physical Android, keyboard/screen-reader and design sign-off remain a later QA gate. No fake live project numbers.
+
+### M4-C — Read-only API and security groundwork [x] OFFLINE TESTED / ONLINE AUTH DEFERRED
+
+- [x] Worker-specific owner-authorization architecture, public GitHub read-only adapters, verified-source/error-state rules, same-origin Control Room resources, no write/approval routes: [ADR-004](M4C_SECURITY_DECISION.md).
+- [x] **56 passing Node tests**, covering API security, real loopback HTTP responses, UI contracts and staging-probe classifications; all three branch CI checks were successful before this roadmap change.
+- [x] Simulated API Chromium desktop/mobile interactions and source/failure displays tested; [QA report](M4C_CONNECTED_UI_QA.md).
+- [x] Real Cloudflare Access setup procedure documented only for reference: [runbook](M4C_STAGING_RUNBOOK.md).
+- [ ] **Paused by decision:** no Cloudflare account connection, card entry, staging Worker, deployed identity provider or real authenticated service at this stage. Retain code, do not deploy it.
+
+### M4-D — Source-backed LOCAL Studio Dashboard [~] D1–D5 CODE AND AUTOMATED QA / OWNER ACCEPTANCE PENDING
+
+1. **D1 — Local runtime & source contract [x] code / [ ] owner acceptance:** Runnable Node 22+ loopback-only Control Room with two visibly separated modes (SIMULATED offline demo / PUBLIC GITHUB read-only). Eight canonical project IDs, on-demand evidence requests, source/outage status, zero approved APKs. **22/22 local Node tests passed and branch CI green; physical Windows and browser network acceptance pending.** [Implementation/QA](M4D1_LOCAL_IMPLEMENTATION_QA.md), [runnable source](../local/m4-studio-dev/README.md).
+2. **D2 — Project workspaces [x] code / [ ] owner acceptance:** All eight project workspaces implemented as computer-local responsive pages with public GitHub repository metadata, up to five exact commit links, five recently updated pull requests and source timestamps. Distinct live/simulated/error/no-records states, read-only navigation, explicit build readiness unknown. **47/47 local tests passed; source and UI Chromium QA passed at 1440/768/390/320px.** Milestone editing and backups remain M4-E rather than fake D2 controls. Real Windows/network, accessibility and physical-device review pending. [D2 implementation/QA](M4D2_PROJECT_WORKSPACES_QA.md), [source](../local/m4-studio-dev/README.md).
+3. **D3 — Builds & QA Observatory [x] code / [ ] owner acceptance:** Each of eight local workspaces now has an on-demand, read-only GitHub Actions observatory. Up to five canonical public workflow runs (with precise commit SHA, run link, branch, status, conclusion, observed time) and up to ten per-run canonical public jobs on selection; mismatched URLs and malformed GitHub responses rejected. Separate SIMULATED fixtures, rate-limited/no-records/error states, zero token/paid services/remote writes. **71/71 local tests and five simulated-source Chromium viewport checks passed**; mocked real-shape run→job interaction and project-switch stale-data clearing verified. Individual commit check-run details and APK binary verification remain excluded; a green run never implies signed APK, physical-device QA or owner release approval. [D3 implementation/QA](M4D3_BUILD_QA.md). Real Windows live-GitHub and physical-device/accessibility acceptance pending.
+4. **D4 — Studio Home & attention board [x] code / [ ] owner acceptance:** New local `/studio-home` page in the approved Director's Cut language; linked into the Control Room and Windows launchers. Eight source-catalog shortcuts, owner-chosen up to three focus project IDs stored only in local browser storage (no private notes, sync or backup), focus filtering, and on-demand latest one public GitHub commit per repository (up to eight allowlisted requests per click) with canonical commit SHA/URL, observation timestamps, rate-limit/empty/unavailable disclosure and no background polling. Full SIMULATED demo mode remains clearly marked and never fetches GitHub. **89/89 Node tests passed from the extracted ZIP, plus real Chromium interaction/layout QA at 1440/1024/768/390/320px and a mock-public source contract review.** Actual Windows live-network and physical-device review remain pending. [D4 test evidence](M4D4_STUDIO_HOME_QA.md).
+5. **D5 — Cross-screen UX and QA [x] automated / [ ] owner acceptance:** Keyboard skip links added to all local screens; focus retention when choosing priorities, project-title focus when switching workspaces, focus chooser group semantics, existing modal focus cycle. **98/98 Node tests pass (nine new D5 checks); 15/15 Chromium semantic/keyboard/interaction sweeps across three screens × 1440/1024/768/390/320px passed.** Actual source HTML/CSS/JS with simulated Node HTTP responses and Chromium AX tree inspection. **Real Windows URL loading, live GitHub in user's browser, physical Android, manual screen reader, 200% zoom/contrast and owner sign-off remain pending.** [D5 audit and limitations](M4D5_AUDIT.md).
+
+**D acceptance:** A local-only working UI, actual traceable public GitHub data or conspicuously marked fixtures, no fake release or build completion, no hosting/payment, reviewed design evidence. Project-private data stays out of source/CI.
+
+### M4-E — Studio Operations [~] E1–E4 CODE IMPLEMENTED / OWNER WINDOWS QA PENDING
+
+1. **E1 — Local Data Foundation [x] code / [ ] Windows acceptance:** Real on-device note/decision-draft/plan-draft Vault, single-process revision-protected atomic JSON writes, local-only same-origin POST/PATCH/DELETE and clearly disclosed no encryption/backup/sync. **124/124 tests passed** at its checkpoint; local Windows device acceptance remains open. [E1 QA](M4E1_LOCAL_STORAGE_QA.md).
+2. **E2 — Project Management [x] code / [ ] Windows acceptance:** All eight project workspaces link to local Project Operations with genuine task, milestone and decision records. Per-record status, optional target date, title/details, change history, CRUD actions, project switch and filters; existing E1 notes appear in the matching project. A distinct `project-operations.v1.json` store preserves E1 drafts unchanged. **146/146 Node tests passed from the extracted ZIP; Chromium simulated-local-API interactions passed at 1440/1024/768/390/320px.** The browser environment blocks direct localhost navigation, so normal Windows browser verification, manual screen-reader and physical-device tests remain outstanding. [E2 QA](M4E2_PROJECT_OPERATIONS_QA.md).
+3. **E3 — Studio Planning [x] code / [ ] Windows acceptance:** Studio-wide date navigation, three-per-day server-enforced priorities, timed work blocks, 42-day month grid, project filters, and read-only genuine E2 task/milestone due dates with optional validated links. Separate `studio-planning.v1.json` store preserves E1/E2 files unchanged. CRUD, status toggles and revision checks operate locally with no GitHub writes or release approval. **170/170 Node tests passed from the extracted ZIP; Chromium simulated-API interactions passed at 1440/1024/768/390/320px.** Real Windows browser, network and screen-reader acceptance pending. [E3 QA](M4E3_STUDIO_PLANNING_QA.md).
+4. **E4 — Manual Backup & Restore [x] code / [ ] Windows acceptance:** Loopback-only `/studio-backup` screen exports one portable *unencrypted* JSON file containing the complete E1, E2, and E3 versioned snapshots, with dataset SHA-256 integrity checks. On import, previews verified content and before/after counts without writing. Restore requires an unexpired preview ID, unchanged current source files, acknowledgement that a fresh download has been saved, and exact typed confirmation; writes an on-device pre-restore safety copy and crash-recovery journal before replacing files. Revisions advance to block stale-tab writes. Existing data endpoints remain read-only to external origins; all local HTTP data requests serialize within the process. **196/196 Node tests passed from the extracted ZIP; five responsive Chromium UI checks passed with simulated API responses**, including confirmation gating. Real Windows, physical-device and screen-reader acceptance remain pending. [E4 QA](M4E4_BACKUP_RESTORE_QA.md).
+
+**E safeguards:** Plain local JSON is not encrypted or cloud-synced. Do not store credentials/sensitive data or claim real hosted privacy. Local task completion is not proof of CI success, signed APK, hardware QA or release approval. The existing release-review view stays read-only; no repository mutations or actual approval actions until verified authentication.
+
+### M4-F — Testing and release hardening [ ] NEXT AFTER E4
+
+- [ ] Regression tests for public Studio and local Control Room, mobile/desktop/keyboard/accessibility checks and physical-device review.
+- [ ] Provenance validation, rate-limit/unavailable/stale-source states, restore/import/export verification, offline state consistency and rollback.
+- [ ] Manual release-gate audit; no APK links until exact signed artifact, QA and owner approval are confirmed.
+
+### M4-G — Protected Vercel preview & Neon cloud foundation [~] DEPLOYED READ-ONLY / OWNER APPROVAL PENDING
+
+- [x] Existing Vercel Hobby workspace `navin7` used without payment or card. The isolated `navin-studio-private-preview` project is linked to the draft M4 branch. Vercel Authentication is enabled for **all deployments**, but anonymous incognito access still requires manual user confirmation. [ADR-006](M4G_VERCEL_PROTECTED_PREVIEW_DECISION.md).
+- [x] Source-backed protected Studio Home/project workspaces and read-only public GitHub API deployed separately from the public GitHub Pages site.
+- [x] **M4-G cloud storage groundwork (2026-11-09):** A new **Neon Free** project `navin-studio-private-db` created, separate from existing unrelated databases. Neon Auth + Data API provisioned. Tables for `drafts`, `operations`, `planning`, and document revision history created with force-enabled RLS; client writes cannot change owner user IDs. Explicit authenticated owner-admission RPC is required before reading data. At verification: **0 approved owners and 0 documents**. No user local files migrated.
+- [x] Added cloud-status and Google sign-in review screen at protected `/studio-cloud`; owner-only document GET API with explicit approval check and user-scoped RLS; cloud write API implemented but locked by `STUDIO_CLOUD_WRITES_ENABLED=false` on Vercel.
+- [x] Vercel preview build from commit `b2671c13` reports READY; GitHub 6/6 status checks passed, including the new dependency install, source validation and web bundle build. **36/36 Node contract tests** passed locally, including negative owner access tests. [Cloud QA + limitations](M4G_NEON_STORAGE_FOUNDATION_QA.md).
+- [ ] **Required: owner onboarding** — user signs in with their intended Google account on the protected preview; independently verify Neon Auth user identity, then explicitly approve only the owner's stable user ID in `studio_owners`. Do not infer approval from a Vercel team session or email string.
+- [ ] **Required: deployed security QA** — independently test Vercel unauthorized production/preview/static/API routes, Neon JWT checks, RLS row isolation, session expiry/logout, owner access and conflict handling. No private data or API writes until tests pass.
+- [ ] **Required: persistence/migration** — adapt E1–E4 local management screens for server-side saved data, validate backups/revisions, obtain owner approval for each migration. Keep E1–E4 local files authoritative, separate and untouched meanwhile.
+- [ ] **Required: release compliance** — Vercel Hobby personal non-commercial limitation; paid or commercial use requires an eligible solution. No paid service, card input, hidden auto-overages or public unapproved APK links.
+
+**Security boundary:** Cloud preview is deployed, but **online editing, private sync and real owner data migration are NOT enabled**. Vercel Functions cannot persist existing local JSON. Protected Vercel entry is not a substitute for Neon owner allowlist and row-level permissions.
+
+## M5 — Studio Intelligence & Integrations [ ] FUTURE
+
+- [ ] Source-cited cross-project intelligence, with explicit opt-in to approved app integrations only.
+- [ ] AI-assisted research/planning with traceable facts and human-reviewed proposed actions.
+- [ ] Optional notifications and analytics only when data handling and consent are confirmed, with no invented engagement/revenue numbers.
 
 ## Working rules
 

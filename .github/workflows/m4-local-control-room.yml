@@ -1,0 +1,58 @@
+name: M4-D1/D2/D3 local Studio workspace and QA tests (no deployment)
+
+on:
+  pull_request:
+    paths:
+      - 'local/m4-studio-dev/**'
+      - 'private/m4-control-room-worker/src/control-room-bundle.js'
+      - 'site/data/projects.json'
+      - 'site/data/releases.json'
+      - '.github/workflows/m4-local-control-room.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'local/m4-studio-dev/**'
+      - 'private/m4-control-room-worker/src/control-room-bundle.js'
+      - 'site/data/projects.json'
+      - 'site/data/releases.json'
+      - '.github/workflows/m4-local-control-room.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  local-only-contract:
+    name: M4-D1–D4 source, QA and loopback contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run no-dependency local runtime tests
+        working-directory: local/m4-studio-dev
+        run: npm run check
+      - name: Verify no hosted deployment or paid integration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('local/m4-studio-dev')
+          code = (root / 'server.mjs').read_text()
+          adapter = (root / 'source-adapter.mjs').read_text()
+          workspace = (root / 'workspace-source.mjs').read_text()
+          workspace_ui = (root / 'workspace.js').read_text()
+          qa = (root / 'quality-source.mjs').read_text()
+          qa_ui = (root / 'workspace.html').read_text()
+          assert "server.listen(port,'127.0.0.1'" in code
+          assert "role:'local_preview'" in adapter
+          assert 'api.github.com/repos/' in adapter
+          assert 'api.github.com/repos/' in workspace
+          assert 'per_page=' in workspace
+          assert "'/actions/runs?per_page='" not in qa or 'actions/runs?per_page=' in qa
+          assert 'api.github.com/repos/' in qa
+          assert 'qualityRefresh' in qa_ui
+          assert 'release_ready:null' in qa
+          assert 'credentials:\'same-origin\'' in workspace_ui
+          assert not any((root / x).exists() for x in ('wrangler.toml','wrangler.json','vercel.json','.env','.env.local'))
+          print('PASS: local-only preview, no cloud configuration or owner impersonation.')
+          PY

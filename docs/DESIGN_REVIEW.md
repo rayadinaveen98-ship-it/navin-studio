@@ -1,6 +1,6 @@
 # Visual review — study set 01
 
-**Status:** Exploratory screen concepts; no visual direction is approved for implementation.
+**Status:** Archival initial study set (before M1–M3 approvals); not the current design status. The public Director's Cut V3 visual direction and M3 refinements have since been approved and merged. M4 command-center layouts remain subject to separate review.
 **Date:** 2026-11-08
 
 ## Concept screens prepared in conversation

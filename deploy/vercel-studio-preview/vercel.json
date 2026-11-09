@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/studio-home",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/workspace/:project",
+      "destination": "/workspace.html"
+    },
+    {
+      "source": "/studio-cloud",
+      "destination": "/studio-cloud.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self' https://ep-polished-king-bbl5hxb5.neonauth.c-15.us-east-1.aws.neon.tech; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+        }
+      ]
+    }
+  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
+}

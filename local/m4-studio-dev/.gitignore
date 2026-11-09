@@ -1,0 +1,6 @@
+# Guard against accidental manual copying of local user data into this repository.
+studio-drafts.v1.json
+*.tmp
+.local-data/
+.env
+.env.*

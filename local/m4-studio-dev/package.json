@@ -1,0 +1,14 @@
+{
+  "name": "navin-studio-local-control-room",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "description": "Offline-first Studio planning, project operations, checksum-verified manual backup and safe restore",
+  "scripts": {
+    "dev": "node server.mjs",
+    "dev:demo": "node server.mjs",
+    "dev:github": "node server.mjs --github",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check server.mjs && node --check ui-assets.mjs && node --check source-adapter.mjs && node --check workspace-source.mjs && node --check quality-source.mjs && node --check workspace-ui.mjs && node --check workspace.js && node --check activity-source.mjs && node --check home-ui.mjs && node --check studio-home.js && node --check local-store.mjs && node --check vault-ui.mjs && node --check studio-vault.js && node --check project-operations.mjs && node --check operations-ui.mjs && node --check studio-operations.js && node --check studio-planning.mjs && node --check planning-ui.mjs && node --check studio-planning.js && node --check backup-manager.mjs && node --check backup-ui.mjs && node --check studio-backup.js && node --test tests/*.test.mjs"
+  }
+}
