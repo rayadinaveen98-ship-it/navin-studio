@@ -31,6 +31,8 @@ export function localAssets(mode){
   js=uniqueReplace(js,"if(data.source_state!=='current'||!part) {", "if(!['current','simulated'].includes(data.source_state)||!part) {");
   js=uniqueReplace(js,"target.textContent='Repository: '+(part.repository||'unknown')", "target.textContent=(data.source_state==='simulated'?'SIMULATED EXAMPLE — NOT LIVE\\n':'')+'Repository: '+(part.repository||'unknown')");
   js=uniqueReplace(js,"target.textContent='Workflow: '+(part.workflow||'unnamed')", "target.textContent=(data.source_state==='simulated'?'SIMULATED EXAMPLE — NOT LIVE\\n':'')+'Workflow: '+(part.workflow||'unnamed')");
+  js=uniqueReplace(js, '<div class="modal-actions"><a class="primary-btn" href="${url}"',
+    '<div class="modal-actions"><a class="primary-btn" href="/workspace/${encodeURIComponent(p.id)}">Open project workspace →</a></div><div class="modal-actions"><a class="primary-btn" href="${url}"');
   js=js.replaceAll('Public repository accessible · Preview','Public catalog · verify on request');
   js=js.replaceAll('Owner session unavailable','Local source unavailable').replaceAll('Owner API · read-only','Local public source only');
   js=js.replaceAll('Owner access is required. Sign in again through the protected application address; this page does not expose private data.',
