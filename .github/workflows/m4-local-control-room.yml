@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   local-only-contract:
-    name: M4-D1–D3 source, QA and loopback contracts
+    name: M4-D1–D4 source, QA and loopback contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
