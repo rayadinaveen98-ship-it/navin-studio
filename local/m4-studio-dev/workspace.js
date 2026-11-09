@@ -210,6 +210,7 @@ async function loadProject(id,{navigate=false}={}){
  const current=++requestNumber;resetProject();resetQuality();currentProjectId=null;currentQualityMode=null;$('workspaceMain').setAttribute('aria-busy','true');$('refreshWorkspace').disabled=true;
  if(navigate)history.pushState({project:id},'', '/workspace/'+id);
  updateNavigation(id);
+ const operationsLink=$('projectOperationsLink');if(operationsLink)operationsLink.href='/studio-operations/'+id;
  setText('projectTitle','Loading workspace');setText('projectSummary','Retrieving the local public-source catalog.');setEvidence('loading','CHECKING PROJECT SOURCE','Loading verified records. The local preview never writes to your repositories.');
  try{
   const payload=await readLocal('/api/projects/'+id+'/workspace');
