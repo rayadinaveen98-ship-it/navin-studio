@@ -1,0 +1,10 @@
+{
+  "name": "navin-studio-vercel-protected-preview",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check studio-home.js && node --check workspace.js && node --test tests/*.test.mjs"
+  }
+}
