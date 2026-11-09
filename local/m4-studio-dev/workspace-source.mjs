@@ -16,7 +16,7 @@ const str=(s,max=140)=>typeof s==='string'?s.trim().slice(0,max):null;
 const iso=(s)=>typeof s==='string'&&!Number.isNaN(Date.parse(s))?new Date(s).toISOString():null;
 const unavailable=(at,state='unavailable')=>({state,observed_at:at,items:[],data:null});
 
-async function readGitHub(apiUrl,fetchImpl,expectedArray){
+export async function readGitHub(apiUrl,fetchImpl,expectedArray){
   try{
     const response=await fetchImpl(apiUrl,{
       method:'GET',redirect:'error',signal:AbortSignal.timeout(TIMEOUT_MS),
