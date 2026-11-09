@@ -82,12 +82,14 @@
 
 **D acceptance:** A local-only working UI, actual traceable public GitHub data or conspicuously marked fixtures, no fake release or build completion, no hosting/payment, reviewed design evidence. Project-private data stays out of source/CI.
 
-### M4-E — Studio Operations, local drafts [ ] AFTER D
+### M4-E — Studio Operations [~] E1 LOCAL FOUNDATION BUILT / OWNER QA PENDING
 
-- [ ] Local-only decision log, project notes, roadmap drafts, focus priorities and planning calendar; clear unsynced state plus deliberate export/import/backup design.
-- [ ] Workflows have true save/edit/delete behavior **on the local machine** with explicit data-loss and same-device access warnings; not fake buttons.
-- [ ] Source-backed release *review* queue may be read-only. Real approval, remote writes, signing changes and cross-app actions remain disabled until authenticated hosted security is verified.
-- [ ] Cross-link local draft plans to project IDs without silently rewriting the source project repositories.
+1. **E1 — Local Data Foundation [x] code / [ ] physical Windows acceptance:** Real OS user-data storage for canonical project-linked note, decision and plan drafts (not in the repository/ZIP); working local Vault UI for create/edit/delete; atomic on-disk writes, single-process serialized mutations, revision conflicts, strict body/ID validation and same-origin-only local HTTP writes. **124/124 local Node tests passed from the extracted E1 package; exact UI rendered at 1440/1024/768/390/320px with no horizontal overflow or JS errors; mock API create/edit/delete browser interactions passed at desktop and phone widths.** Localhost browser navigation is blocked by this QA environment, so real Windows browser acceptance is still pending. [E1 implementation and QA](M4E1_LOCAL_STORAGE_QA.md). The records are **plaintext, not synced, not encrypted and not automatically backed up**.
+2. **E2 — Project Management [ ] NEXT:** Full project-linked workspace notes, decision log, milestone drafts and task status with truthful save/edit/delete interactions and explicit relationship to GitHub source evidence, without remote writes.
+3. **E3 — Studio Planning [ ]:** Manual priorities, upcoming work, planning calendar and cross-project relations; no fake schedule automation or unapproved external integrations.
+4. **E4 — Backup & Review [ ]:** Explicit local export/import, schema validation and conflict-safe restore; storage/data loss recovery checks, end-to-end browser/keyboard/screen-reader QA and owner's visual approval.
+
+**Boundary:** The local app allows writes only to its on-device file-backed draft vault. GitHub, APK releases, public Studio and private cloud integrations remain strictly unchanged/read-only. Hosted authentication is deferred to M4-G. No paid services, accounts, or card details.
 
 ### M4-F — Testing and release hardening [ ] AFTER E
 
