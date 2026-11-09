@@ -8,6 +8,7 @@
   <script src="/workspace.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#workspaceMain">Skip to main content</a>
   <div class="local-ribbon" id="ribbon">M4-D3 <span class="ribbon-split">/</span> LOCAL DEVELOPMENT <span class="ribbon-split">/</span> PUBLIC DATA OR SIMULATED FIXTURES <span class="ribbon-split">/</span> NO LOGIN OR REMOTE WRITES</div>
   <div class="workspace-layout">
     <aside class="rail" aria-label="Project navigator">
@@ -22,10 +23,10 @@
         <div class="breadcrumb"><span class="eyebrow">THE CONTROL ROOM</span><span class="slash">/</span><span>PROJECT WORKSPACE</span><span class="slash">/</span><strong id="crumbProject">LOADING</strong></div>
         <div class="topbar-actions"><span id="modeChip" class="mode-chip" aria-live="polite">CHECKING MODE</span><button id="refreshWorkspace" type="button" class="refresh-btn" disabled><span aria-hidden="true">↻</span> Refresh source</button></div>
       </header>
-      <main id="workspaceMain" class="main" aria-busy="true">
+      <main id="workspaceMain" class="main" tabindex="-1" aria-busy="true">
         <section class="hero" aria-labelledby="projectTitle">
           <div class="hero-inner"><div class="hero-topline"><span class="red-line" aria-hidden="true"></span><span id="projectNumber">PROJECT DOSSIER</span><span class="hero-file">NAVIN STUDIO / PROJECT FILE</span></div>
-          <div class="hero-head"><div><div class="hero-kind" id="projectKind">STUDIO PROJECT</div><h1 id="projectTitle">Loading workspace<span class="period">.</span></h1><p class="hero-summary" id="projectSummary">Retrieving the local public-source catalog.</p></div><div class="hero-emblem" aria-hidden="true"><span id="projectEmblem">N</span></div></div>
+          <div class="hero-head"><div><div class="hero-kind" id="projectKind">STUDIO PROJECT</div><h1 id="projectTitle" tabindex="-1">Loading workspace<span class="period">.</span></h1><p class="hero-summary" id="projectSummary">Retrieving the local public-source catalog.</p></div><div class="hero-emblem" aria-hidden="true"><span id="projectEmblem">N</span></div></div>
           <div class="hero-footer"><span id="projectRepository">SOURCE NOT YET VERIFIED</span><a id="repoLink" class="repo-link hidden" href="#" rel="noopener noreferrer" target="_blank">VIEW REPOSITORY <span aria-hidden="true">↗</span></a></div></div>
           <div class="hero-glow" aria-hidden="true"></div>
         </section>
