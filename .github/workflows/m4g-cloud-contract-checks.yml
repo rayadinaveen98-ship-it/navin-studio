@@ -1,0 +1,42 @@
+name: Studio M4-G cloud owner-gate contracts
+
+on:
+  pull_request:
+    paths:
+      - 'deploy/vercel-studio-preview/**'
+      - '.github/workflows/m4g-cloud-contract-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'deploy/vercel-studio-preview/**'
+      - '.github/workflows/m4g-cloud-contract-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  cloud-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned preview dependencies (no scripts from unknown repos)
+        working-directory: deploy/vercel-studio-preview
+        run: npm install --no-audit --no-fund
+      - name: Run security and source-truth tests
+        working-directory: deploy/vercel-studio-preview
+        run: npm run check
+      - name: Build protected Studio frontend
+        working-directory: deploy/vercel-studio-preview
+        run: npm run build
+      - name: Verify static UI and no privileged credentials embedded
+        working-directory: deploy/vercel-studio-preview
+        run: |
+          test -s dist/studio-cloud.js
+          test -s dist/studio-cloud.html
+          test -s dist/index.html
+          test -s dist/workspace.html
+          ! grep -R 'postgresql://' dist
+          echo 'Studio cloud bundle built without embedded database credentials.'
