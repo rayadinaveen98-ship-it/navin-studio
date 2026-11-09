@@ -1,14 +1,14 @@
 {
   "name": "navin-studio-local-control-room",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Local-only Studio Control Room, separate from hosted owner authentication",
+  "description": "Local-only M4-D2 Control Room with eight public-source project workspaces",
   "scripts": {
     "dev": "node server.mjs",
     "dev:demo": "node server.mjs",
     "dev:github": "node server.mjs --github",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check server.mjs && node --check ui-assets.mjs && node --check source-adapter.mjs && node --test tests/*.test.mjs"
+    "check": "node --check server.mjs && node --check ui-assets.mjs && node --check source-adapter.mjs && node --check workspace-source.mjs && node --check workspace-ui.mjs && node --check workspace.js && node --test tests/*.test.mjs"
   }
 }
