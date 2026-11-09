@@ -1,4 +1,4 @@
-name: M4-D1/D2 local Studio workspace tests (no deployment)
+name: M4-D1/D2/D3 local Studio workspace and QA tests (no deployment)
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   local-only-contract:
-    name: M4-D1/D2 source and workspace contract checks
+    name: M4-D1–D3 source, QA and loopback contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,11 +41,17 @@ jobs:
           adapter = (root / 'source-adapter.mjs').read_text()
           workspace = (root / 'workspace-source.mjs').read_text()
           workspace_ui = (root / 'workspace.js').read_text()
+          qa = (root / 'quality-source.mjs').read_text()
+          qa_ui = (root / 'workspace.html').read_text()
           assert "server.listen(port,'127.0.0.1'" in code
           assert "role:'local_preview'" in adapter
           assert 'api.github.com/repos/' in adapter
           assert 'api.github.com/repos/' in workspace
           assert 'per_page=' in workspace
+          assert "'/actions/runs?per_page='" not in qa or 'actions/runs?per_page=' in qa
+          assert 'api.github.com/repos/' in qa
+          assert 'qualityRefresh' in qa_ui
+          assert 'release_ready:null' in qa
           assert 'credentials:\'same-origin\'' in workspace_ui
           assert not any((root / x).exists() for x in ('wrangler.toml','wrangler.json','vercel.json','.env','.env.local'))
           print('PASS: local-only preview, no cloud configuration or owner impersonation.')
