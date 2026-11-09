@@ -1,4 +1,4 @@
-name: M4-D1 local Control Room tests (no deployment)
+name: M4-D1/D2 local Studio workspace tests (no deployment)
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   local-only-contract:
-    name: M4-D1 loopback and source truth checks
+    name: M4-D1/D2 source and workspace contract checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,9 +39,14 @@ jobs:
           root = Path('local/m4-studio-dev')
           code = (root / 'server.mjs').read_text()
           adapter = (root / 'source-adapter.mjs').read_text()
+          workspace = (root / 'workspace-source.mjs').read_text()
+          workspace_ui = (root / 'workspace.js').read_text()
           assert "server.listen(port,'127.0.0.1'" in code
           assert "role:'local_preview'" in adapter
           assert 'api.github.com/repos/' in adapter
+          assert 'api.github.com/repos/' in workspace
+          assert 'per_page=' in workspace
+          assert 'credentials:\'same-origin\'' in workspace_ui
           assert not any((root / x).exists() for x in ('wrangler.toml','wrangler.json','vercel.json','.env','.env.local'))
           print('PASS: local-only preview, no cloud configuration or owner impersonation.')
           PY
