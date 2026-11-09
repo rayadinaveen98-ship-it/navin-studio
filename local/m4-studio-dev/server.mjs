@@ -14,6 +14,8 @@ import {createProjectOperations} from './project-operations.mjs';
 import {operationsAssets} from './operations-ui.mjs';
 import {createStudioPlanning} from './studio-planning.mjs';
 import {planningAssets} from './planning-ui.mjs';
+import {createBackupManager} from './backup-manager.mjs';
+import {backupAssets} from './backup-ui.mjs';
 
 const headers={
   'Cache-Control':'no-store, private, max-age=0','Pragma':'no-cache',
@@ -22,16 +24,16 @@ const headers={
   'Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
 };
 const toJson=(obj,status=200)=>({status,type:'application/json; charset=utf-8',body:JSON.stringify(obj)});
-async function parseLocalJson(req){
+async function parseLocalJson(req,maxBytes=17000){
   if(!/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers['content-type']||''))throw new VaultError('json_required',415);
   const chunks=[];let bytes=0;
-  for await(const chunk of req){bytes+=chunk.length;if(bytes>17000)throw new VaultError('request_too_large',413);chunks.push(chunk);}
+  for await(const chunk of req){bytes+=chunk.length;if(bytes>maxBytes)throw new VaultError('request_too_large',413);chunks.push(chunk);}
   try{const obj=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!obj||typeof obj!=='object'||Array.isArray(obj))throw Error('invalid');return obj;}
   catch{throw new VaultError('invalid_json',400);}
 }
 
-function emit(res,{status=200,type='text/plain; charset=utf-8',body=''}){
-  res.writeHead(status,{...headers,'Content-Type':type});res.end(body);
+function emit(res,{status=200,type='text/plain; charset=utf-8',body='',extraHeaders={}}){
+  res.writeHead(status,{...headers,...extraHeaders,'Content-Type':type});res.end(body);
 }
 export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,clock=()=>new Date(),dataDir}={}) {
   const adapter=createSourceAdapter({mode,fetchImpl,clock});
@@ -42,6 +44,12 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
   const vault=createLocalStore({dataDir,clock});
   const operations=createProjectOperations({dataDir,clock});
   const planning=createStudioPlanning({dataDir,clock,operations});
+  const backups=createBackupManager({dataDir,clock});
+  let localQueue=Promise.resolve();
+  const withLocalLock=(fn)=>{
+    const next=localQueue.catch(()=>{}).then(async()=>{await backups.recover();return fn()});
+    localQueue=next.then(()=>{},()=>{});return next;
+  };
   const server=createServer(async(req,res)=>{
     const port=server.address()?.port;
     const host='127.0.0.1:'+port;
@@ -51,6 +59,37 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
       (req.headers.origin&&req.headers.origin!==origin)||req.headers['sec-fetch-site']==='cross-site'||
       !req.url?.startsWith('/')){
       emit(res,toJson({ok:false,error:'local_origin_required'},403));return;
+    }
+    // Backups are manual, loopback-only and never contain source/GitHub tokens.
+    // Preview has no side effects. Restore requires both a server-held preview
+    // and typed confirmation; every local file operation shares one lock.
+    const backupRoute=req.url==='/api/local/backup/preview'||req.url==='/api/local/backup/restore';
+    if(req.method==='POST'&&backupRoute){
+      if(req.headers.origin!==origin||req.headers['x-navin-local-write']!=='1'||
+        req.headers['sec-fetch-site']==='cross-site'){
+        emit(res,toJson({ok:false,error:'same_origin_write_required'},403));return;
+      }
+      try{
+        const body=await parseLocalJson(req,10*1024*1024+4096);
+        const result=await withLocalLock(()=>req.url.endsWith('/preview')?backups.prepare(body.backup):backups.restore(body));
+        emit(res,toJson(result));
+      }catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'backup_unavailable'},e instanceof VaultError?e.status:503));}
+      return;
+    }
+    if(req.method==='GET'&&req.url==='/api/local/backup/export'){
+      try{
+        const payload=await withLocalLock(()=>backups.createExport());
+        emit(res,{status:200,type:'application/json; charset=utf-8',body:payload.json,
+          extraHeaders:{'Content-Disposition':'attachment; filename="'+payload.filename+'"'}});
+      }catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'backup_unavailable'},e instanceof VaultError?e.status:503));}
+      return;
+    }
+    if(req.method==='GET'&&req.url==='/api/local/backup/info'){
+      try{
+        const info=await withLocalLock(()=>backups.createExport());
+        emit(res,toJson({ok:true,counts:info.counts,storage:'local_only',encrypted:false,automatic_backup:false}));
+      }catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'backup_unavailable'},e instanceof VaultError?e.status:503));}
+      return;
     }
     // Local writes are opt-in, same-origin JSON requests with a custom header and
     // optimistic revision; never accept cross-origin forms or plain fetch requests.
@@ -69,11 +108,11 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
       const id=mutation[2];
       try{
         let result;
-        if(req.method==='POST'&&!id)result=await store.create(revision,await parseLocalJson(req));
-        else if(req.method==='PATCH'&&id)result=await store.update(revision,id,await parseLocalJson(req));
+        if(req.method==='POST'&&!id){const input=await parseLocalJson(req);result=await withLocalLock(()=>store.create(revision,input));}
+        else if(req.method==='PATCH'&&id){const input=await parseLocalJson(req);result=await withLocalLock(()=>store.update(revision,id,input));}
         else if(req.method==='DELETE'&&id){
           if((req.headers['content-length']&&req.headers['content-length']!=='0')||req.headers['transfer-encoding'])throw new VaultError('unexpected_body',400);
-          result=await store.delete(revision,id);
+          result=await withLocalLock(()=>store.delete(revision,id));
         }else{emit(res,toJson({ok:false,error:'operation_not_allowed'},405));return;}
         emit(res,toJson(result,req.method==='POST'?201:200));
       }catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'vault_unavailable'},e instanceof VaultError?e.status:503));}
@@ -92,6 +131,15 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     }
     if(url.pathname==='/control-room.css'){
       emit(res,{status:200,type:'text/css; charset=utf-8',body:assets.css});return;
+    }
+    if(url.pathname==='/studio-backup'){
+      emit(res,{status:200,type:'text/html; charset=utf-8',body:backupAssets.html});return;
+    }
+    if(url.pathname==='/studio-backup.css'){
+      emit(res,{status:200,type:'text/css; charset=utf-8',body:backupAssets.css});return;
+    }
+    if(url.pathname==='/studio-backup.js'){
+      emit(res,{status:200,type:'text/javascript; charset=utf-8',body:backupAssets.js});return;
     }
     if(url.pathname==='/studio-planning'){
       emit(res,{status:200,type:'text/html; charset=utf-8',body:planningAssets.html});return;
@@ -153,23 +201,23 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
       emit(res,toJson(adapter.overview()));return;
     }
     if(url.pathname==='/api/local/status'||url.pathname==='/api/local/drafts'){
-      try{emit(res,toJson(url.pathname==='/api/local/status'?await vault.status():await vault.list()));}
+      try{emit(res,toJson(await withLocalLock(()=>url.pathname==='/api/local/status'?vault.status():vault.list())));}
       catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'vault_unavailable'},503));}
       return;
     }
     if(url.pathname==='/api/local/planning'){
-      try{emit(res,toJson(await planning.list()));}
+      try{emit(res,toJson(await withLocalLock(()=>planning.list())));}
       catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'planning_unavailable'},e instanceof VaultError?e.status:503));}
       return;
     }
     if(url.pathname==='/api/local/operations'){
-      try{emit(res,toJson(await operations.list()));}
+      try{emit(res,toJson(await withLocalLock(()=>operations.list())));}
       catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'operations_unavailable'},e instanceof VaultError?e.status:503));}
       return;
     }
     const opProjectRoute=/^\/api\/local\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/operations$/.exec(url.pathname);
     if(opProjectRoute){
-      try{emit(res,toJson(await operations.list(opProjectRoute[1])));}
+      try{emit(res,toJson(await withLocalLock(()=>operations.list(opProjectRoute[1]))));}
       catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'operations_unavailable'},e instanceof VaultError?e.status:503));}
       return;
     }

@@ -27,7 +27,7 @@ function validateEntry(r){
   (r.linked_operation_id===null||(typeof r.linked_operation_id==='string'&&UUID.test(r.linked_operation_id)))&&
   ['planned','done'].includes(r.status)&&instantOK(r.created_at)&&instantOK(r.updated_at);
 }
-function validateSnapshot(snapshot){
+export function validatePlanningSnapshot(snapshot){
  if(!allowed(snapshot,['schema_version','revision','updated_at','entries'])||snapshot.schema_version!==1||!Number.isSafeInteger(snapshot.revision)||snapshot.revision<0||!instantOK(snapshot.updated_at)||!Array.isArray(snapshot.entries)||snapshot.entries.length>MAX_ENTRIES||!snapshot.entries.every(validateEntry)||new Set(snapshot.entries.map(x=>x.id)).size!==snapshot.entries.length)throw new VaultError('planning_integrity_error',503);
  const counts=new Map();
  for(const x of snapshot.entries){if(x.kind==='priority'){const n=(counts.get(x.date)||0)+1;if(n>3)throw new VaultError('planning_integrity_error',503);counts.set(x.date,n)}}
@@ -39,7 +39,7 @@ export function createStudioPlanning({dataDir=defaultDataDir(),clock=()=>new Dat
   try{
    const stat=await lstat(file);
    if(!stat.isFile()||stat.isSymbolicLink()||stat.size>MAX_FILE)throw new VaultError('planning_integrity_error',503);
-   return validateSnapshot(JSON.parse(await readFile(file,'utf8')));
+   return validatePlanningSnapshot(JSON.parse(await readFile(file,'utf8')));
   }catch(e){
    if(e?.code==='ENOENT')return {schema_version:1,revision:0,updated_at:'1970-01-01T00:00:00.000Z',entries:[]};
    if(e instanceof VaultError)throw e;
@@ -77,7 +77,7 @@ export function createStudioPlanning({dataDir=defaultDataDir(),clock=()=>new Dat
    if(rev!==previous.revision)throw new VaultError('stale_revision',409);
    const entries=structuredClone(previous.entries);const record=await fn(entries);
    const updated={schema_version:1,revision:previous.revision+1,updated_at:stamp(clock),entries};
-   validateSnapshot(updated);await persist(updated);
+   validatePlanningSnapshot(updated);await persist(updated);
    return {ok:true,revision:updated.revision,record};
   });
   queue=next.then(()=>{},()=>{});return next;

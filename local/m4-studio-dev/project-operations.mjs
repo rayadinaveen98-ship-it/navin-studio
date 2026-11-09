@@ -33,7 +33,7 @@ function validRecord(r){
     typeof h.at==='string'&&!Number.isNaN(Date.parse(h.at))&&typeof h.title==='string'&&h.title.length<=140&&
     STATUS[r.kind].includes(h.status));
 }
-function validSnapshot(data){
+export function validateOperationsSnapshot(data){
   if(!allowed(data,['schema_version','revision','updated_at','records'])||data.schema_version!==1||
     !Number.isSafeInteger(data.revision)||data.revision<0||typeof data.updated_at!=='string'||Number.isNaN(Date.parse(data.updated_at))||
     !Array.isArray(data.records)||data.records.length>MAX_RECORDS||!data.records.every(validRecord)||
@@ -47,7 +47,7 @@ export function createProjectOperations({dataDir=defaultDataDir(),clock=()=>new 
   try{
     const st=await lstat(file);
     if(!st.isFile()||st.isSymbolicLink()||st.size>MAX_FILE)throw new VaultError('operations_integrity_error',503);
-    return validSnapshot(JSON.parse(await readFile(file,'utf8')));
+    return validateOperationsSnapshot(JSON.parse(await readFile(file,'utf8')));
   }catch(e){
     if(e?.code==='ENOENT')return {schema_version:1,revision:0,updated_at:'1970-01-01T00:00:00.000Z',records:[]};
     if(e instanceof VaultError)throw e;
@@ -80,7 +80,7 @@ export function createProjectOperations({dataDir=defaultDataDir(),clock=()=>new 
     if(revision!==current.revision)throw new VaultError('stale_revision',409);
     const records=structuredClone(current.records);const output=fn(records);
     const updated={schema_version:1,revision:current.revision+1,updated_at:timestamp(clock),records};
-    validSnapshot(updated);await save(updated);
+    validateOperationsSnapshot(updated);await save(updated);
     return {ok:true,revision:updated.revision,record:output};
   });
   chain=job.then(()=>{},()=>{});return job;

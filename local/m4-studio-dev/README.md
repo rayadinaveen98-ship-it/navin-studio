@@ -49,7 +49,7 @@ npm run dev:github
 
 ## Current milestone sequence
 
-M4-D1 through D5 built and reviewed in code/browser; Windows device and manual screen-reader acceptance remain separate. **M4-E1**: persisted on-device draft storage and introductory Vault UI. **Next M4-E2**: full project-linked decisions, milestone planning and notes workflows. **M4-E3**: Studio planning/calendar. **M4-E4**: backup/export/import and restore QA. Hosted private auth stays deferred to M4-G.
+M4-D1 through D5 built and reviewed in code/browser; Windows device and manual screen-reader acceptance remain separate. **M4-E1**: persisted on-device draft storage and introductory Vault UI. **Next M4-E2**: full project-linked decisions, milestone planning and notes workflows. **M4-E4**: Studio planning/calendar. **M4-E4**: backup/export/import and restore QA. Hosted private auth stays deferred to M4-G.
 
 ## M4-E2 — Project Operations (implemented)
 
@@ -63,7 +63,7 @@ Endpoint summary: `GET /api/local/operations` and `/api/local/projects/:id/opera
 
 E2 source/tests are in `project-operations.mjs`, `studio-operations.{html,css,js}`, and `tests/project-operations-*.test.mjs`. Run `npm run check` with Node 22+. Browser screenshots are from real Chromium rendering with simulated local API responses because direct loopback browsing is blocked in the testing environment. Physical Windows/browser and screen-reader acceptance are not claimed.
 
-## M4-E3 — Studio Planning (implemented; owner Windows QA still pending)
+## M4-E4 — Studio Planning (implemented; owner Windows QA still pending)
 
 Run `OPEN-STUDIO-PLANNING.bat` from the extracted ZIP, or `start-planning.bat` here. Open `http://127.0.0.1:4173/studio-planning` in your browser with the local server running. The page now provides:
 
@@ -78,3 +78,14 @@ Storage: **`studio-planning.v1.json`**, alongside but separate from the E1 `stud
 API: `GET /api/local/planning`, `POST /api/local/planning`, `PATCH /api/local/planning/:id`, and `DELETE /api/local/planning/:id` (same loopback-origin JSON/custom header/revision controls as E1/E2). The new page assets are served from `/studio-planning`, `/studio-planning.css` and `/studio-planning.js`. No GitHub writes, online auth, card, Cloudflare or remote storage were added. This is local single-process use; running two server instances pointing to one data folder simultaneously is unsupported.
 
 The E3 interface and five layout widths were checked in Chromium with **simulated API responses**; local server routes/persistence are verified by Node HTTP tests. The testing environment blocks Chromium's direct loopback navigation; the user must still verify real Windows browser persistence and device-specific assistive technology.
+
+
+## M4-E4 — Manual backup and restore (no service or account)
+
+Launch `OPEN-STUDIO-BACKUP.bat` from the ZIP or open `http://127.0.0.1:4173/studio-backup` while the local server is running. Export creates one downloadable **unencrypted JSON** backup containing Vault drafts, Project Operations records and Studio Planning entries, each with a SHA-256 checksum. It does **not** include any GitHub content/tokens, APK binaries, or separate browser-local focus choices. Backups are not uploaded, scheduled, or encrypted. Keep the download somewhere private and separate from the application folder.
+
+Restore is destructive (not a merge): choose a backup, validate it, review record counts, **download a current backup first**, acknowledge this and type `REPLACE LOCAL DATA`. The server rejects edited backups, malformed schemas, changed-current-data after preview, and reused/expired previews. It makes an unencrypted `pre-restore-safety-copy.v1.json` file inside your local data directory before replacing any file and uses an on-disk journal to roll back partially written restores on the next local API request/startup. Refreshed browser tabs are required after restore.
+
+**Storage:** Windows `%LOCALAPPDATA%\NavinStudio\ControlRoom`, macOS `~/Library/Application Support/NavinStudio/ControlRoom`, Linux `~/.local/share/navin-studio/control-room` (or `$XDG_DATA_HOME`). Do not delete this directory without exporting a backup. Same-user OS processes can still access the files, and this app has no remote login, E2E encryption, or automatic synchronization.
+
+To verify the full suite: `npm run check`. All hosting/cloud deployment continues deferred to M4-G.

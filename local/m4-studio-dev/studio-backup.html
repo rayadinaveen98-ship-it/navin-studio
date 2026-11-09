@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b0c11">
+<title>Backup & Restore · NAVIN STUDIO / Local</title>
+<link rel="stylesheet" href="/workspace.css"><link rel="stylesheet" href="/studio-vault.css"><link rel="stylesheet" href="/studio-backup.css">
+<script defer src="/studio-backup.js"></script>
+</head><body>
+<a class="skip-link" href="#backupMain">Skip to main content</a>
+<div class="local-ribbon">M4-E4 <span class="ribbon-split">/</span> MANUAL BACKUP & RESTORE <span class="ribbon-split">/</span> ON THIS COMPUTER <span class="ribbon-split">/</span> NO CLOUD · NO ENCRYPTION</div>
+<div class="workspace-layout">
+ <aside class="rail vault-rail" aria-label="Studio navigation">
+  <a class="brand" href="/studio-home"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>NAVIN <em>STUDIO</em></span></a>
+  <a class="back-to" href="/studio-home"><span aria-hidden="true">←</span> Studio Home</a>
+  <div class="rail-kicker">STUDIO SYSTEM / <span>DATA CONTROL</span></div>
+  <nav class="vault-navigation" aria-label="Studio views">
+   <a href="/studio-home">◈ <span>Studio Home</span></a>
+   <a href="/studio-planning">▦ <span>Studio Planning</span></a>
+   <a href="/studio-operations">◎ <span>Project Operations</span></a>
+   <a href="/studio-vault">▤ <span>Local Vault</span></a>
+   <a href="/studio-backup" aria-current="page">⬡ <span>Backup & Restore</span></a>
+   <a href="/workspace/backlot">◇ <span>Source Workspaces</span></a>
+  </nav>
+  <div class="rail-bottom"><div class="rail-accent"></div><strong>KEEP YOUR WORK.</strong><span>Everything here is on-device. Export often; store your downloaded copy somewhere you control.</span></div>
+ </aside>
+ <div class="content-shell"><header class="topbar"><div class="breadcrumb"><span class="eyebrow">NAVIN STUDIO</span><span class="slash">/</span><strong>BACKUP & RESTORE</strong></div><div class="topbar-actions"><span class="mode-chip">LOCAL · MANUAL</span><a class="refresh-btn" href="/studio-operations">Project Operations ↗</a></div></header>
+ <main class="main vault-main backup-main" id="backupMain" tabindex="-1">
+  <section class="vault-hero backup-hero"><div class="vault-hero-copy"><div class="hero-topline"><span class="red-line"></span>PROTECT THE WORK / 04</div><h1>Your Studio.<br><span>Your control.</span></h1><p>Export your local plans and restore them safely—without an account, a subscription, or publishing your notes.</p></div><div class="backup-hero-ornament" aria-hidden="true"><span>03</span><small>LOCAL DATASETS</small></div></section>
+  <div id="backupState" class="vault-state" data-state="loading" role="status" aria-live="polite"><span class="vault-state-dot" aria-hidden="true"></span><div><strong id="backupStateTitle">Checking local files…</strong><p id="backupStateDetail">No cloud connection will be used.</p></div><button type="button" class="vault-quiet" id="backupRefresh">Refresh</button></div>
+  <section class="backup-data-grid" aria-label="Local dataset counts">
+   <div><small>LOCAL VAULT</small><strong id="draftsCount">—</strong><span>Notes & drafts</span></div>
+   <div><small>PROJECT OPERATIONS</small><strong id="operationsCount">—</strong><span>Tasks, milestones & decisions</span></div>
+   <div><small>STUDIO PLANNING</small><strong id="planningCount">—</strong><span>Priorities & time blocks</span></div>
+   <div><small>BACKUP MODE</small><strong class="backup-manual">Manual</strong><span>Never automatic or cloud-synced</span></div>
+  </section>
+  <div class="backup-panels">
+   <section class="backup-panel backup-export" aria-labelledby="exportHeading"><span class="vault-panel-kicker">SAVE A COPY / 01</span><h2 id="exportHeading">Export your work<span>.</span></h2><p>Download one portable JSON file containing all three datasets. Each dataset includes a SHA-256 checksum to detect accidental changes.</p>
+    <a class="vault-primary backup-download" id="backupDownload" href="/api/local/backup/export">Download complete backup <span aria-hidden="true">↗</span></a>
+    <div class="backup-notice"><strong>Plaintext file — handle privately.</strong><p>This download is <b>not encrypted</b>. Anyone with the file can read its contents. Keep a copy outside the application folder, such as a trusted personal drive.</p></div>
+   </section>
+   <section class="backup-panel backup-import" aria-labelledby="restoreHeading"><span class="vault-panel-kicker">RECOVER YOUR WORK / 02</span><h2 id="restoreHeading">Review before restore<span>.</span></h2><p>Choose a NAVIN STUDIO backup file. We verify its structure and checksums, then show exactly what would be replaced. Nothing changes during preview.</p>
+    <label for="backupFile" class="backup-file-label">Choose a backup file <span>(.json, up to 10 MB)</span></label>
+    <input id="backupFile" type="file" accept=".json,application/json">
+    <button id="backupPreview" class="vault-quiet backup-preview-btn" type="button">Validate and preview</button>
+    <section id="previewPanel" class="backup-preview hidden" aria-labelledby="previewHeading"><div class="backup-preview-top"><h3 id="previewHeading">Replacement preview</h3><span id="previewExpiry"></span></div><p id="previewCreated"></p><table><caption class="sr-only">Current and imported record counts</caption><thead><tr><th scope="col">Dataset</th><th scope="col">On computer</th><th scope="col">In backup</th></tr></thead><tbody id="previewRows"></tbody></table>
+     <div class="backup-warning"><strong>Restoring replaces all three local datasets.</strong><p>A pre-restore safety copy will also be saved on this computer. This operation is not a merge. Existing open tabs may need refreshing.</p></div>
+     <label class="backup-check"><input type="checkbox" id="ackSaved"><span>I have saved a current backup in case I need to undo this.</span></label>
+     <label for="backupConfirm" class="backup-confirm-label">Type <code>REPLACE LOCAL DATA</code> to confirm</label>
+     <input id="backupConfirm" autocomplete="off" spellcheck="false" placeholder="REPLACE LOCAL DATA">
+     <button id="backupRestore" class="backup-danger" type="button" disabled>Replace local data</button>
+    </section>
+   </section>
+  </div>
+  <div class="vault-footnote"><span aria-hidden="true">◇</span><div><strong>What's included — and what's not</strong><p>Includes E1 Vault notes, E2 tasks/milestones/decisions and E3 planning entries. Does not include GitHub repositories, APKs, credentials or your browser's separate Studio Home focus selection. This tool provides manual backups, not automatic cloud backup, encryption, or an online owner login.</p></div></div>
+  <footer class="workspace-footer"><span>NAVIN STUDIO / LOCAL BACKUP & RESTORE / M4-E4</span><span>NO CLOUD · NO PAYMENT · NO GITHUB WRITES</span></footer>
+ </main></div>
+</div></body></html>

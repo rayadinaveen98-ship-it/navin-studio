@@ -9,7 +9,7 @@
  <aside class="rail vault-rail" aria-label="Studio navigation"><a class="brand" href="/studio-home"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>NAVIN <em>STUDIO</em></span></a>
  <a class="back-to" href="/studio-home"><span aria-hidden="true">←</span> Studio Home</a>
  <div class="rail-kicker">STUDIO OPERATIONS / <span>ON DEVICE</span></div>
- <nav class="vault-navigation" aria-label="Studio views"><a href="/studio-home">◈ <span>Studio Home</span></a><a href="/studio-planning">▦ <span>Studio Planning</span></a><a href="/studio-operations" aria-current="page">◎ <span>Project Operations</span></a><a href="/studio-vault">▤ <span>Local Vault</span></a><a href="/workspace/backlot">▦ <span>Source Workspaces</span></a><a href="/">◇ <span>Control Room</span></a></nav>
+ <nav class="vault-navigation" aria-label="Studio views"><a href="/studio-home">◈ <span>Studio Home</span></a><a href="/studio-planning">▦ <span>Studio Planning</span></a><a href="/studio-operations" aria-current="page">◎ <span>Project Operations</span></a><a href="/studio-vault">▤ <span>Local Vault</span></a><a href="/studio-backup">⬡ <span>Backup & Restore</span></a><a href="/workspace/backlot">▦ <span>Source Workspaces</span></a><a href="/">◇ <span>Control Room</span></a></nav>
  <div class="rail-bottom"><div class="rail-accent"></div><strong>MAKE PROGRESS VISIBLE.</strong><span>Your tasks, decisions and milestones are local-only. They are not verified GitHub progress or published plans.</span></div>
  </aside>
  <div class="content-shell"><header class="topbar"><div class="breadcrumb"><span class="eyebrow">NAVIN STUDIO</span><span class="slash">/</span><strong>PROJECT OPERATIONS</strong></div><div class="topbar-actions"><span class="mode-chip">ON-DEVICE · UNSYNCED</span><a class="refresh-btn" href="/studio-vault">Open Vault ↗</a></div></header>
@@ -27,7 +27,7 @@
      <label for="recordDue">Target date <span class="optional">optional</span></label><input id="recordDue" type="date">
      <label for="recordDetails">Context <span class="optional">optional</span></label><textarea id="recordDetails" maxlength="4000" rows="5" placeholder="Why it matters, scope, or evidence still required…"></textarea>
      <div class="vault-compose-actions"><button class="vault-primary" type="submit" id="operationsSave">Save locally ↗</button><button class="vault-quiet hidden" type="button" id="operationsCancel">Cancel edit</button></div>
-    </form><p class="vault-form-note">Edits record a title/status history. Deleting permanently removes the entire item and its history. No automatic backup until M4-E4.</p>
+    </form><p class="vault-form-note">Edits record a title/status history. Deleting permanently removes the entire item and its history. Manual backups are now available in Backup & Restore.</p>
    </section>
    <section class="vault-library ops-board" aria-labelledby="opsBoardTitle"><div class="vault-library-top"><div><div class="vault-panel-kicker">YOUR PROJECT BOARD / 02</div><h2 id="opsBoardTitle">What matters<span>.</span></h2></div><span class="vault-count" id="recordCount">—</span></div><div class="ops-filter-row"><label for="recordFilter">Show</label><select id="recordFilter"><option value="all">All records</option><option value="task">Tasks</option><option value="milestone">Milestones</option><option value="decision">Decisions</option></select></div>
     <ol id="operationsList" class="vault-records ops-list" aria-live="polite"><li class="vault-empty">Reading your plans…</li></ol>

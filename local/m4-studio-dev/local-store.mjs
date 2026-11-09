@@ -43,7 +43,7 @@ function validDraft(d){
     typeof d.created_at==='string'&&!Number.isNaN(Date.parse(d.created_at))&&
     typeof d.updated_at==='string'&&!Number.isNaN(Date.parse(d.updated_at));
 }
-function validateSnapshot(data){
+export function validateVaultSnapshot(data){
   if(!exactKeys(data,['schema_version','revision','updated_at','drafts'])||data.schema_version!==1||
     !Number.isSafeInteger(data.revision)||data.revision<0||
     !Array.isArray(data.drafts)||data.drafts.length>MAX_DRAFTS||
@@ -66,7 +66,7 @@ export function createLocalStore({dataDir=defaultDataDir(),clock=()=>new Date(),
       if(e instanceof VaultError)throw e;
       throw new VaultError('vault_unavailable',503);
     }
-    try{return validateSnapshot(JSON.parse(raw));}
+    try{return validateVaultSnapshot(JSON.parse(raw));}
     catch(e){if(e instanceof VaultError)throw e;throw new VaultError('vault_integrity_error',503);}
   }
   async function persist(snapshot){
@@ -102,7 +102,7 @@ export function createLocalStore({dataDir=defaultDataDir(),clock=()=>new Date(),
       const drafts=current.drafts.map(d=>({...d}));
       const result=mutation(drafts);
       const updated={schema_version:1,revision:current.revision+1,updated_at:iso(clock),drafts};
-      validateSnapshot(updated);
+      validateVaultSnapshot(updated);
       await persist(updated);
       return {ok:true,revision:updated.revision,record:result};
     });
