@@ -1,6 +1,6 @@
 # NAVIN STUDIO — product and engineering roadmap
 
-**Updated:** 2026-11-08  
+**Updated:** 2026-11-09  
 **Project:** NAVIN STUDIO itself — not the internal roadmap of any showcased application.  
 **Status convention:** [x] Verified, [~] in review/in progress, [ ] pending.
 
@@ -47,34 +47,66 @@
 
 **Evidence:** [Merged PR #23](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/23), [M3 reviewed design / QA](M3_VISUAL_QA.md), [hosted publish workflow](https://github.com/rayadinaveen98-ship-it/navin-studio/actions/runs/42504957343).
 
-## M4 — Private Creator Command Center [~] M4-C PROTECTED UI + API CODE VERIFIED
+## M4 — Creator Command Center [~] OFFLINE-FIRST DEVELOPMENT
 
-- [~] Prepare trusted auth/backend/storage decision before exposing any control interface; [security and product brief](M4_PRIVATE_COMMAND_CENTER.md) drafted.
-- [x] Verify eight cataloged GitHub public repositories and establish [M4 public source inventory and permission contract](M4_SOURCE_INVENTORY.md).
-- [ ] Source-backed project status dashboard with real timestamps, QA links and audit history.
-- [ ] Owner-authorized release review/approval workflow; strict separation from public presentation.
-- [ ] Studio calendar / decisions / roadmap editing only after authenticated storage and permissions are genuinely available.
-- [x] M4-B standalone interactive desktop/mobile Control Room prototype committed on the draft branch (not public website, not authenticated). [Design brief, browser QA and review gate](M4_VISUAL_REVIEW.md).
-- [x] M4-B visual direction accepted for further development after actual desktop/mobile browser screenshot review; final physical-device/screen-reader acceptance still pending.
-- [x] M4-C zero-cost-first [protected API architecture](M4C_SECURITY_DECISION.md) researched against Cloudflare documentation.
-- [x] Dedicated read-only Worker API scaffold with exact Access app audience + stable owner UUID checks, public catalog read-model, narrow public GitHub source/CI endpoints and no write operations.
-- [x] 56 offline handler/HTTP/security/UI/staging-probe tests and dedicated GitHub PR CI; no production credentials or deployment.
-- [x] Read-only Control Room HTML, JS and CSS served only by owner-checking Worker routes (no Static Assets bypass).
-- [x] Owner-context/API mocked Chromium QA at 1440px, 768px, 390px and 360px; source display, project navigation, no overflow and denied-session clearing tested. [Exact source and limitation report](M4C_CONNECTED_UI_QA.md).
-- [x] [Protected-first Cloudflare staging runbook](M4C_STAGING_RUNBOOK.md) prepared with an anonymous route probe that distinguishes Access login challenges from an inconclusive plain 403; no account changes made.
-- [ ] Configure real Cloudflare Access protected staging on a separately authorized owner account and test every production/preview route and session edge case (account setup requires approval).
-- [x] Wire M4-B frontend code to same-origin owner-checked API endpoints with explicit source timestamps and unavailable states (offline QA only).
-- [ ] Verify complete same-origin UI/API interaction against **real** Cloudflare Access on a separately authorized private staging origin before calling it a secured deployment.
-- [~] Chromium design review passes at 1440/768/390/360/320px; owner visual sign-off, file-open, screen-reader and physical-device QA remain pending.
-- [ ] Desktop/mobile design approval and realistic operational testing.
+**Locked direction (2026-11-09):** [ADR-005 — offline-first / no-card decision](M4_OFFLINE_FIRST_DECISION.md). **Cloudflare setup, payment details and any hosted private-login deployment are explicitly deferred.** This is a development-order change, not a claim that the private dashboard is already live.
 
-**Hard boundary:** a public static page with a client-side password or hidden route **is not** an acceptable owner-only command center.
+### M4-A — Product architecture and source inventory [x]
 
-## M5 — Studio intelligence and cross-project orchestration [ ]
+- [x] Define public-vs-private trust boundary, owner dashboard structure, provenance rules and release-approval gate: [M4 spec](M4_PRIVATE_COMMAND_CENTER.md).
+- [x] Inventory eight real source repositories; only public metadata may enter local source previews: [source inventory](M4_SOURCE_INVENTORY.md).
+- [x] Lock Director's Cut visual system as the baseline; the `NAVIN STUDIO` brand name itself is still a working direction.
 
-- [ ] Verified, explicitly approved integrations with Backlot, Frame One, CineRelay and future apps.
-- [ ] Source-cited studio assistant; no invented build state, metrics, release versions or task completion.
-- [ ] Optional notifications, analytics and update subscriptions only with a consent and data-handling design.
+### M4-B — Interactive Control Room prototype [x] / manual acceptance [~]
+
+- [x] Five frontend screens: Overview, Projects, Release Desk, Decisions, Studio Log.
+- [x] Interactive search, category filters, project details, navigation, mobile layouts; [visual review and browser QA](M4_VISUAL_REVIEW.md).
+- [x] Owner accepted the direction to continue; screenshot evidence and code committed in [draft PR #24](https://github.com/rayadinaveen98-ship-it/navin-studio/pull/24).
+- [ ] Final physical Android, keyboard/screen-reader and design sign-off remain a later QA gate. No fake live project numbers.
+
+### M4-C — Read-only API and security groundwork [x] OFFLINE TESTED / ONLINE AUTH DEFERRED
+
+- [x] Worker-specific owner-authorization architecture, public GitHub read-only adapters, verified-source/error-state rules, same-origin Control Room resources, no write/approval routes: [ADR-004](M4C_SECURITY_DECISION.md).
+- [x] **56 passing Node tests**, covering API security, real loopback HTTP responses, UI contracts and staging-probe classifications; all three branch CI checks were successful before this roadmap change.
+- [x] Simulated API Chromium desktop/mobile interactions and source/failure displays tested; [QA report](M4C_CONNECTED_UI_QA.md).
+- [x] Real Cloudflare Access setup procedure documented only for reference: [runbook](M4C_STAGING_RUNBOOK.md).
+- [ ] **Paused by decision:** no Cloudflare account connection, card entry, staging Worker, deployed identity provider or real authenticated service at this stage. Retain code, do not deploy it.
+
+### M4-D — Source-backed LOCAL Studio Dashboard [ ] NEXT ACTIVE MILESTONE
+
+1. **D1 — Local runtime & source contract:** Runnable computer-local Control Room (loopback), separate LIVE PUBLIC SOURCE vs SIMULATED fixtures, refresh/error/empty/offline states, no credentials or unprotected online private URL.
+2. **D2 — Project workspaces:** Eight genuinely mapped projects, individual overview, repository links, verifiable commits/PRs, owner-selected milestone drafts, clear “not observed” for missing facts.
+3. **D3 — Builds & QA Observatory:** Per-repository Actions/check/run history with exact commit and run URLs, evidence timestamps, no automatic interpretation of CI success as APK readiness. Android evidence only when sourced/verified.
+4. **D4 — Home & attention board:** Real source-backed recent activity, filtering, actionable evidence links, owner-chosen “today's focus,” clean information hierarchy.
+5. **D5 — Product QA and visual review:** Real desktop/mobile Chromium screens, search/navigation, source failures, keyboard and accessibility checks; owner visual review before production changes.
+
+**D acceptance:** A local-only working UI, actual traceable public GitHub data or conspicuously marked fixtures, no fake release or build completion, no hosting/payment, reviewed design evidence. Project-private data stays out of source/CI.
+
+### M4-E — Studio Operations, local drafts [ ] AFTER D
+
+- [ ] Local-only decision log, project notes, roadmap drafts, focus priorities and planning calendar; clear unsynced state plus deliberate export/import/backup design.
+- [ ] Workflows have true save/edit/delete behavior **on the local machine** with explicit data-loss and same-device access warnings; not fake buttons.
+- [ ] Source-backed release *review* queue may be read-only. Real approval, remote writes, signing changes and cross-app actions remain disabled until authenticated hosted security is verified.
+- [ ] Cross-link local draft plans to project IDs without silently rewriting the source project repositories.
+
+### M4-F — Testing and release hardening [ ] AFTER E
+
+- [ ] Regression tests for public Studio and local Control Room, mobile/desktop/keyboard/accessibility checks and physical-device review.
+- [ ] Provenance validation, rate-limit/unavailable/stale-source states, restore/import/export verification, offline state consistency and rollback.
+- [ ] Manual release-gate audit; no APK links until exact signed artifact, QA and owner approval are confirmed.
+
+### M4-G — Private online hosting and authentication [ ] DEFERRED TO END
+
+- [ ] Re-evaluate **genuinely zero-spend, card-free** hosting/auth when the finished private dashboard actually needs remote access, with fresh policy and pricing verification.
+- [ ] Owner explicitly approves provider, account creation, scope and cost safeguards.
+- [ ] Deploy only under a real server-side owner-auth boundary; verify unauthorized routes, previews, sessions, logout, CSRF for any future writes, and audit logs.
+- [ ] No public GitHub Pages admin password, hidden route, exposed private metadata or fake security claims.
+
+## M5 — Studio Intelligence & Integrations [ ] FUTURE
+
+- [ ] Source-cited cross-project intelligence, with explicit opt-in to approved app integrations only.
+- [ ] AI-assisted research/planning with traceable facts and human-reviewed proposed actions.
+- [ ] Optional notifications and analytics only when data handling and consent are confirmed, with no invented engagement/revenue numbers.
 
 ## Working rules
 
