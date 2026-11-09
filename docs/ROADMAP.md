@@ -97,15 +97,19 @@
 - [ ] Provenance validation, rate-limit/unavailable/stale-source states, restore/import/export verification, offline state consistency and rollback.
 - [ ] Manual release-gate audit; no APK links until exact signed artifact, QA and owner approval are confirmed.
 
-### M4-G — Vercel protected web preview and secure hosting [~] PROVIDER DIRECTION SELECTED / NOT DEPLOYED
+### M4-G — Protected Vercel preview & Neon cloud foundation [~] DEPLOYED READ-ONLY / OWNER APPROVAL PENDING
 
-- [x] Evaluate existing connected Vercel Hobby workspace as the zero-spend first-hosting option. As of 2026-09-09, free Vercel Authentication can protect **All Deployments**, including production. [ADR-006: Vercel-first protected personal preview](M4G_VERCEL_PROTECTED_PREVIEW_DECISION.md).
-- [ ] Build and verify a Vercel-compatible **read-only** frontend/serverless API preview using allowlisted public repo data only; leave the existing public GitHub Pages website unchanged.
-- [ ] Before deploying usable routes, configure Vercel Authentication → **All Deployments** and verify that all anonymous preview/production/API/asset URLs are denied. No Vercel project/deployment has yet been created for NAVIN STUDIO.
-- [ ] Re-architect E1–E4 persistence: Vercel Functions cannot preserve the current disk-based JSON stores; use approved card-free durable storage and independent server-side owner authorization before allowing hosted edits, restores or private data migration.
-- [ ] Keep the existing local backend and user-data files authoritative until verified migration, backup and manual acceptance. No credentials, sensitive records or release authorization in public previews.
-- [ ] Respect **Hobby personal non-commercial use** restriction. Evaluate an eligible service/plan before any commercial Studio deployment. Never enter card details or activate paid services without explicit owner approval.
-- [ ] Perform real deployed security tests, physical Windows/Android QA and owner visual approval before production release.
+- [x] Existing Vercel Hobby workspace `navin7` used without payment or card. The isolated `navin-studio-private-preview` project is linked to the draft M4 branch. Vercel Authentication is enabled for **all deployments**, but anonymous incognito access still requires manual user confirmation. [ADR-006](M4G_VERCEL_PROTECTED_PREVIEW_DECISION.md).
+- [x] Source-backed protected Studio Home/project workspaces and read-only public GitHub API deployed separately from the public GitHub Pages site.
+- [x] **M4-G cloud storage groundwork (2026-11-09):** A new **Neon Free** project `navin-studio-private-db` created, separate from existing unrelated databases. Neon Auth + Data API provisioned. Tables for `drafts`, `operations`, `planning`, and document revision history created with force-enabled RLS; client writes cannot change owner user IDs. Explicit authenticated owner-admission RPC is required before reading data. At verification: **0 approved owners and 0 documents**. No user local files migrated.
+- [x] Added cloud-status and Google sign-in review screen at protected `/studio-cloud`; owner-only document GET API with explicit approval check and user-scoped RLS; cloud write API implemented but locked by `STUDIO_CLOUD_WRITES_ENABLED=false` on Vercel.
+- [x] Vercel preview build from commit `b2671c13` reports READY; GitHub 6/6 status checks passed, including the new dependency install, source validation and web bundle build. **36/36 Node contract tests** passed locally, including negative owner access tests. [Cloud QA + limitations](M4G_NEON_STORAGE_FOUNDATION_QA.md).
+- [ ] **Required: owner onboarding** — user signs in with their intended Google account on the protected preview; independently verify Neon Auth user identity, then explicitly approve only the owner's stable user ID in `studio_owners`. Do not infer approval from a Vercel team session or email string.
+- [ ] **Required: deployed security QA** — independently test Vercel unauthorized production/preview/static/API routes, Neon JWT checks, RLS row isolation, session expiry/logout, owner access and conflict handling. No private data or API writes until tests pass.
+- [ ] **Required: persistence/migration** — adapt E1–E4 local management screens for server-side saved data, validate backups/revisions, obtain owner approval for each migration. Keep E1–E4 local files authoritative, separate and untouched meanwhile.
+- [ ] **Required: release compliance** — Vercel Hobby personal non-commercial limitation; paid or commercial use requires an eligible solution. No paid service, card input, hidden auto-overages or public unapproved APK links.
+
+**Security boundary:** Cloud preview is deployed, but **online editing, private sync and real owner data migration are NOT enabled**. Vercel Functions cannot persist existing local JSON. Protected Vercel entry is not a substitute for Neon owner allowlist and row-level permissions.
 
 ## M5 — Studio Intelligence & Integrations [ ] FUTURE
 
