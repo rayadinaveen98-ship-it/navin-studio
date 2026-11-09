@@ -82,12 +82,12 @@
 
 **D acceptance:** A local-only working UI, actual traceable public GitHub data or conspicuously marked fixtures, no fake release or build completion, no hosting/payment, reviewed design evidence. Project-private data stays out of source/CI.
 
-### M4-E — Studio Operations [~] E1–E2 CODE IMPLEMENTED / OWNER QA PENDING
+### M4-E — Studio Operations [~] E1–E3 CODE IMPLEMENTED / OWNER QA PENDING
 
 1. **E1 — Local Data Foundation [x] code / [ ] Windows acceptance:** Real on-device note/decision-draft/plan-draft Vault, single-process revision-protected atomic JSON writes, local-only same-origin POST/PATCH/DELETE and clearly disclosed no encryption/backup/sync. **124/124 tests passed** at its checkpoint; local Windows device acceptance remains open. [E1 QA](M4E1_LOCAL_STORAGE_QA.md).
 2. **E2 — Project Management [x] code / [ ] Windows acceptance:** All eight project workspaces link to local Project Operations with genuine task, milestone and decision records. Per-record status, optional target date, title/details, change history, CRUD actions, project switch and filters; existing E1 notes appear in the matching project. A distinct `project-operations.v1.json` store preserves E1 drafts unchanged. **146/146 Node tests passed from the extracted ZIP; Chromium simulated-local-API interactions passed at 1440/1024/768/390/320px.** The browser environment blocks direct localhost navigation, so normal Windows browser verification, manual screen-reader and physical-device tests remain outstanding. [E2 QA](M4E2_PROJECT_OPERATIONS_QA.md).
-3. **E3 — Studio Planning [ ] NEXT:** Local daily priorities, cross-project work agenda, planning calendar and selected project focus linked to E2 records; no remote writes or fictional deadlines.
-4. **E4 — Backup & Restore [ ] AFTER E3:** User-initiated export/import, data validation and recovery, restore conflict controls, complete end-to-end Windows QA and visual review.
+3. **E3 — Studio Planning [x] code / [ ] Windows acceptance:** Studio-wide date navigation, three-per-day server-enforced priorities, timed work blocks, 42-day month grid, project filters, and read-only genuine E2 task/milestone due dates with optional validated links. Separate `studio-planning.v1.json` store preserves E1/E2 files unchanged. CRUD, status toggles and revision checks operate locally with no GitHub writes or release approval. **170/170 Node tests passed from the extracted ZIP; Chromium simulated-API interactions passed at 1440/1024/768/390/320px.** Real Windows browser, network and screen-reader acceptance pending. [E3 QA](M4E3_STUDIO_PLANNING_QA.md).
+4. **E4 — Backup & Restore [ ] NEXT:** User-initiated export/import, data validation and recovery, restore conflict controls, complete end-to-end Windows QA and visual review.
 
 **E safeguards:** Plain local JSON is not encrypted or cloud-synced. Do not store credentials/sensitive data or claim real hosted privacy. Local task completion is not proof of CI success, signed APK, hardware QA or release approval. The existing release-review view stays read-only; no repository mutations or actual approval actions until verified authentication.
 

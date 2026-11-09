@@ -12,6 +12,8 @@ import {createLocalStore,VaultError} from './local-store.mjs';
 import {vaultAssets} from './vault-ui.mjs';
 import {createProjectOperations} from './project-operations.mjs';
 import {operationsAssets} from './operations-ui.mjs';
+import {createStudioPlanning} from './studio-planning.mjs';
+import {planningAssets} from './planning-ui.mjs';
 
 const headers={
   'Cache-Control':'no-store, private, max-age=0','Pragma':'no-cache',
@@ -39,6 +41,7 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
   const assets=localAssets(mode);
   const vault=createLocalStore({dataDir,clock});
   const operations=createProjectOperations({dataDir,clock});
+  const planning=createStudioPlanning({dataDir,clock,operations});
   const server=createServer(async(req,res)=>{
     const port=server.address()?.port;
     const host='127.0.0.1:'+port;
@@ -51,7 +54,7 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     }
     // Local writes are opt-in, same-origin JSON requests with a custom header and
     // optimistic revision; never accept cross-origin forms or plain fetch requests.
-    const mutation=!req.url.includes('?') ? /^\/api\/local\/(drafts|operations)(?:\/([0-9a-f-]{36}))?$/.exec(req.url) : null;
+    const mutation=!req.url.includes('?') ? /^\/api\/local\/(drafts|operations|planning)(?:\/([0-9a-f-]{36}))?$/.exec(req.url) : null;
     if(req.method!=='GET' && mutation){
       if(req.headers.origin!==origin||req.headers['x-navin-local-write']!=='1'||
         req.headers['sec-fetch-site']==='cross-site'){
@@ -62,7 +65,7 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
       if(!match){emit(res,toJson({ok:false,error:'revision_required'},428));return;}
       const revision=Number(match[1]);
       const type=mutation[1];
-      const store=type==='operations'?operations:vault;
+      const store=type==='operations'?operations:type==='planning'?planning:vault;
       const id=mutation[2];
       try{
         let result;
@@ -89,6 +92,15 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     }
     if(url.pathname==='/control-room.css'){
       emit(res,{status:200,type:'text/css; charset=utf-8',body:assets.css});return;
+    }
+    if(url.pathname==='/studio-planning'){
+      emit(res,{status:200,type:'text/html; charset=utf-8',body:planningAssets.html});return;
+    }
+    if(url.pathname==='/studio-planning.css'){
+      emit(res,{status:200,type:'text/css; charset=utf-8',body:planningAssets.css});return;
+    }
+    if(url.pathname==='/studio-planning.js'){
+      emit(res,{status:200,type:'text/javascript; charset=utf-8',body:planningAssets.js});return;
     }
     if(url.pathname==='/studio-operations'||/^\/studio-operations\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(url.pathname)){
       if(url.pathname!=='/studio-operations'&&!projects.some(p=>url.pathname==='/studio-operations/'+p.id)){
@@ -143,6 +155,11 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     if(url.pathname==='/api/local/status'||url.pathname==='/api/local/drafts'){
       try{emit(res,toJson(url.pathname==='/api/local/status'?await vault.status():await vault.list()));}
       catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'vault_unavailable'},503));}
+      return;
+    }
+    if(url.pathname==='/api/local/planning'){
+      try{emit(res,toJson(await planning.list()));}
+      catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'planning_unavailable'},e instanceof VaultError?e.status:503));}
       return;
     }
     if(url.pathname==='/api/local/operations'){

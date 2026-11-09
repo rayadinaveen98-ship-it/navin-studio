@@ -62,3 +62,19 @@ Local storage uses a separate `project-operations.v1.json` in the same user-spec
 Endpoint summary: `GET /api/local/operations` and `/api/local/projects/:id/operations`, `POST /api/local/operations`, `PATCH /api/local/operations/:id`, `DELETE /api/local/operations/:id`, plus read-only local HTML/CSS/JS. Writes require `Origin` matching local port, `X-Navin-Local-Write: 1`, JSON content type and quoted `If-Match` revision. Every other existing Studio feature continues to work without new credentials, installs or subscriptions.
 
 E2 source/tests are in `project-operations.mjs`, `studio-operations.{html,css,js}`, and `tests/project-operations-*.test.mjs`. Run `npm run check` with Node 22+. Browser screenshots are from real Chromium rendering with simulated local API responses because direct loopback browsing is blocked in the testing environment. Physical Windows/browser and screen-reader acceptance are not claimed.
+
+## M4-E3 — Studio Planning (implemented; owner Windows QA still pending)
+
+Run `OPEN-STUDIO-PLANNING.bat` from the extracted ZIP, or `start-planning.bat` here. Open `http://127.0.0.1:4173/studio-planning` in your browser with the local server running. The page now provides:
+
+- An actual date chooser, previous/next day navigation, and a 42-cell selectable monthly calendar.
+- **Up to three daily priorities** across the Studio; local create, edit, mark done/planned and delete.
+- **Scheduled time blocks** with project, date, start time and duration; editable, deletable and independently completable.
+- An all-project/individual-project visibility filter, with daily totals and a clear source status.
+- Read-only cross-project **tasks and milestones due on the selected date**, read from the existing E2 operations file. Optionally link a new plan to an E2 task/milestone in the same project. Deleting an E2 item does not silently delete planning data; its link is shown as unavailable. Completing a plan does not change E2 task status.
+
+Storage: **`studio-planning.v1.json`**, alongside but separate from the E1 `studio-drafts.v1.json` and E2 `project-operations.v1.json` under the same per-user application-data folder. Old files are not rewritten/migrated by E3. The new planning file is plain JSON, unencrypted, unsynced, without automatic backup; E4 is responsible for export/import/verified restore. At most 500 entries, up to three priorities per day, input size checks, a revision gate, atomic file replacement and fail-closed corrupted-file handling.
+
+API: `GET /api/local/planning`, `POST /api/local/planning`, `PATCH /api/local/planning/:id`, and `DELETE /api/local/planning/:id` (same loopback-origin JSON/custom header/revision controls as E1/E2). The new page assets are served from `/studio-planning`, `/studio-planning.css` and `/studio-planning.js`. No GitHub writes, online auth, card, Cloudflare or remote storage were added. This is local single-process use; running two server instances pointing to one data folder simultaneously is unsupported.
+
+The E3 interface and five layout widths were checked in Chromium with **simulated API responses**; local server routes/persistence are verified by Node HTTP tests. The testing environment blocks Chromium's direct loopback navigation; the user must still verify real Windows browser persistence and device-specific assistive technology.

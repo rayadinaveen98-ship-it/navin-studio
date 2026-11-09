@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b0c11">
+<title>Studio Planning · NAVIN STUDIO / Local</title>
+<link rel="stylesheet" href="/workspace.css"><link rel="stylesheet" href="/studio-vault.css"><link rel="stylesheet" href="/studio-operations.css"><link rel="stylesheet" href="/studio-planning.css">
+<script defer src="/studio-planning.js"></script>
+</head><body>
+<a class="skip-link" href="#planningMain">Skip to main content</a>
+<div class="local-ribbon">M4-E3 <span class="ribbon-split">/</span> STUDIO PLANNING <span class="ribbon-split">/</span> SAVED ON THIS COMPUTER <span class="ribbon-split">/</span> UNSYNCED · NO AUTOMATIC BACKUP</div>
+<div class="workspace-layout">
+ <aside class="rail vault-rail" aria-label="Studio navigation">
+  <a class="brand" href="/studio-home"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>NAVIN <em>STUDIO</em></span></a>
+  <a class="back-to" href="/studio-home"><span aria-hidden="true">←</span> Studio Home</a>
+  <div class="rail-kicker">STUDIO SYSTEM / <span>PLANNING</span></div>
+  <nav class="vault-navigation" aria-label="Studio views"><a href="/studio-home">◈ <span>Studio Home</span></a><a href="/studio-planning" aria-current="page">▦ <span>Studio Planning</span></a><a href="/studio-operations">◎ <span>Project Operations</span></a><a href="/studio-vault">▤ <span>Local Vault</span></a><a href="/workspace/backlot">◇ <span>Source Workspaces</span></a></nav>
+  <div class="rail-bottom"><div class="rail-accent"></div><strong>DIRECT THE DAY.</strong><span>Choose three priorities. Reserve focused time. Keep project source evidence separate from plans.</span></div>
+ </aside>
+ <div class="content-shell"><header class="topbar"><div class="breadcrumb"><span class="eyebrow">NAVIN STUDIO</span><span class="slash">/</span><strong>PLANNING</strong></div><div class="topbar-actions"><span class="mode-chip">LOCAL ONLY · UNSYNCED</span><a class="refresh-btn" href="/studio-operations">Project Operations ↗</a></div></header>
+ <main class="main vault-main planning-main" id="planningMain" tabindex="-1">
+  <section class="vault-hero plan-hero"><div class="vault-hero-copy"><div class="hero-topline"><span class="red-line"></span>THE STUDIO RHYTHM / 03</div><h1>Make space for<br><span>what matters.</span></h1><p>One timeline across eight projects. Choose your three daily priorities, schedule work, and see linked project deadlines—without guessing progress.</p></div><div class="plan-hero-mark" aria-hidden="true"><span class="plan-mark-ring"></span><strong>03</strong><small>THE DAILY CUT</small></div></section>
+  <div class="vault-state" id="planningState" data-state="loading" role="status" aria-live="polite"><span class="vault-state-dot" aria-hidden="true"></span><div><strong id="planningTitle">Loading your local plan</strong><p id="planningDetail">Reading your planning file and E2 project deadlines.</p></div><button class="vault-quiet" id="planningRefresh" type="button">Refresh</button></div>
+  <section class="plan-toolbar" aria-label="Planning date and project filter"><div><label for="selectedDate">Planning date</label><div class="plan-date-controls"><button id="dayPrevious" type="button" aria-label="Previous day">←</button><input id="selectedDate" type="date"><button id="dayNext" type="button" aria-label="Next day">→</button><button id="dayToday" type="button">Today</button></div></div><div><label for="projectFilter">Show project</label><select id="projectFilter"><option value="all">All eight projects</option></select></div></section>
+  <section class="plan-stats" aria-label="Planning overview"><div><small>DAILY PRIORITIES</small><strong id="priorityCount">0 / 3</strong><span>Choose, don't overload</span></div><div><small>TIME BLOCKS</small><strong id="sessionCount">0</strong><span>Scheduled for selected day</span></div><div><small>PROJECT TARGETS</small><strong id="dueCount">0</strong><span>From E2 tasks and milestones</span></div><div><small>SAVED LOCALLY</small><strong id="planRevision">—</strong><span>Revision protected · no cloud</span></div></section>
+  <div class="plan-top-grid">
+   <section class="plan-day panel-surface" aria-labelledby="dayHeading"><div class="plan-section-top"><div><span class="vault-panel-kicker">TODAY'S DIRECTIVE / 01</span><h2 id="dayHeading">The daily cut<span>.</span></h2><p id="dayCaption">Select a day to see your priorities.</p></div><span class="plan-pill" id="dayProgress">0 done</span></div>
+     <div class="plan-inner-sections"><div><h3>Top three priorities <small>MAXIMUM 3 / ALL PROJECTS</small></h3><ol class="plan-entries" id="priorityList" aria-live="polite"><li class="vault-empty">Loading priorities…</li></ol></div><div><h3>Time blocks <small>YOUR PLANNED SESSIONS</small></h3><ol class="plan-entries" id="sessionList" aria-live="polite"><li class="vault-empty">Loading time blocks…</li></ol></div></div>
+   </section>
+   <section class="plan-composer panel-surface" aria-labelledby="planFormTitle"><div class="vault-panel-kicker">CREATE A PLAN / 02</div><h2 id="planFormTitle">Plan a move<span>.</span></h2><p class="vault-description">A priority is one of your top three. A time block reserves a specific time for focused work.</p>
+    <form id="planningForm">
+     <label for="planKind">Plan type</label><select id="planKind"><option value="priority">Daily priority</option><option value="session">Time block</option></select>
+     <label for="planProject">Project</label><select id="planProject" required></select>
+     <label for="planTitle">What needs doing?</label><input id="planTitle" maxlength="140" required autocomplete="off" placeholder="Write a clear next action…">
+     <label for="planDate">Date</label><input type="date" id="planDate" required>
+     <div class="plan-scheduling hidden" id="planScheduling"><div><label for="planTime">Start time</label><input id="planTime" type="time" value="09:00"></div><div><label for="planDuration">Duration (minutes)</label><select id="planDuration"><option value="30">30 minutes</option><option value="60" selected>60 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option><option value="180">180 minutes</option></select></div></div>
+     <label for="planLink">Link an existing E2 task or milestone <span class="optional">optional</span></label><select id="planLink"><option value="">No linked item</option></select>
+     <label for="planDetails">Notes <span class="optional">optional</span></label><textarea id="planDetails" maxlength="1200" rows="3" placeholder="What should be finished or prepared?"></textarea>
+     <div class="vault-compose-actions"><button class="vault-primary" id="planSave" type="submit">Save local plan ↗</button><button class="vault-quiet hidden" id="planCancel" type="button">Cancel edit</button></div>
+    </form><p class="vault-form-note">Planning marks do not change E2 task status, CI results or release approvals. Local planning isn't encrypted or backed up automatically.</p>
+   </section>
+  </div>
+  <div class="plan-lower-grid">
+   <section class="panel-surface plan-calendar" aria-labelledby="calendarHeading"><div class="plan-section-top"><div><span class="vault-panel-kicker">MONTH VIEW / 03</span><h2 id="calendarHeading">The calendar<span>.</span></h2></div><div class="plan-month-switch"><button id="monthPrevious" type="button" aria-label="Previous month">←</button><strong id="calendarMonth">—</strong><button id="monthNext" type="button" aria-label="Next month">→</button></div></div><div class="plan-weekdays" aria-hidden="true"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div><div id="calendarDays" class="plan-calendar-grid" role="group" aria-label="Select a day"></div><div class="plan-calendar-legend"><span><i class="legend-plan"></i> Local planning</span><span><i class="legend-due"></i> E2 targets</span></div></section>
+   <section class="panel-surface plan-deadlines" aria-labelledby="deadlineHeading"><div class="vault-panel-kicker">LINKED PROJECT WORK / 04</div><h2 id="deadlineHeading">Project targets<span>.</span></h2><p class="vault-description">Tasks and milestones due on the selected day, read directly from your separate E2 on-device records.</p><ul id="deadlineList" class="plan-deadline-list" aria-live="polite"><li class="vault-empty">Loading project targets…</li></ul><a href="/studio-operations" class="vault-quiet">Manage E2 project records ↗</a></section>
+  </div>
+  <div class="vault-footnote"><span aria-hidden="true">◇</span><div><strong>One calendar, no fake sync</strong><p>Planning entries are saved in a separate local file. An E2 task link is a reference, not a remote update. Deleted E2 records may leave unlinked planning entries. Backup/import/export are scheduled for E4.</p></div></div>
+  <footer class="workspace-footer"><span>NAVIN STUDIO / LOCAL STUDIO PLANNING / M4-E3</span><span>NO CLOUD · NO GITHUB WRITES · NO AUTOMATIC BACKUP</span></footer>
+ </main></div>
+</div></body></html>
