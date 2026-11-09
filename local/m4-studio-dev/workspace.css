@@ -14,3 +14,9 @@
 @media(max-width:1150px){.quality-grid{grid-template-columns:1fr}.quality-stat{padding:17px 15px}.quality-stat strong{font-size:21px}}
 @media(max-width:700px){.quality-header{padding:18px;align-items:stretch;flex-direction:column}.quality-lead{align-items:flex-start}.quality-orbit{width:40px;height:40px;flex:0 0 40px;font-size:29px}.quality-lead h3{font-size:18px}.quality-action{width:100%}.quality-stat-grid{grid-template-columns:1fr 1fr}.quality-stat:nth-child(2){border-right:0}.quality-stat:last-child{grid-column:1/-1;border-top:1px solid #ffffff17}.quality-panel-head{padding:18px}.quality-run-list,.quality-job-list{padding:0 18px}.quality-panel-foot{padding:15px 18px}.quality-trustline{padding:12px;letter-spacing:.025em}}
 @media(max-width:370px){.quality-titleline{flex-wrap:wrap}.quality-run{gap:9px}.quality-run-index{min-width:25px;width:25px;height:27px}.quality-stat{padding:14px}.quality-stat strong{font-size:18px}}
+
+/* M4-D5 keyboard access: visible skip navigation, effective across all local pages. */
+.skip-link{position:fixed;left:12px;top:10px;z-index:99999;transform:translateY(-160%);padding:11px 15px;border-radius:8px;background:#f6e4eb;color:#171720;border:2px solid #d97597;font-size:14px;font-weight:800;box-shadow:0 8px 24px #0008}
+.skip-link:focus-visible{transform:translateY(0);outline:3px solid #b8a4fc;outline-offset:2px}
+#projectTitle:focus{outline:2px solid #ad9bf5;outline-offset:7px;border-radius:4px}
+@media(prefers-reduced-motion:reduce){.skip-link{transition:none!important}}
