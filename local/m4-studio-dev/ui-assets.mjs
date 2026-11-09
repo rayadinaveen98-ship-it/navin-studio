@@ -22,6 +22,8 @@ export function localAssets(mode){
   html=html.replaceAll('Owner session checked at runtime','Local session · no sign-in');
   html=html.replaceAll('All eight source repositories have been verified as publicly accessible. Development readiness is not inferred from repository activity.','Eight public repository paths from the Studio catalog. Live GitHub source details are requested only when you inspect a project.');
   html=html.replaceAll('Protected owner interface','Local development preview');
+  html=uniqueReplace(html,'<body>', '<body><a class="skip-link" href="#mainContent">Skip to main content</a>');
+  html=uniqueReplace(html,'<main class="content" id="mainContent">','<main class="content" id="mainContent" tabindex="-1">');
   html=uniqueReplace(html,'</body>', '<a class="home-direct-link" href="/studio-home">Studio Home ↗</a></body>');
   let js=uniqueReplace(controlRoomJs,"if(user.role!=='owner')throw Error('access_denied');","if(user.role!=='local_preview')throw Error('access_denied');");
   js=uniqueReplace(js,"document.getElementById('apiAccessValue').textContent='Protected';","document.getElementById('apiAccessValue').textContent='Local only';");
@@ -44,6 +46,7 @@ export function localAssets(mode){
   const css=controlRoomCss+'\n/* M4-D1 local-only status chrome; base Director\'s Cut UI remains unchanged. */\n'
     +'.demo-banner{font-size:10px;letter-spacing:.06em;background:'+(demo?'#392b24':'#21302e')+';color:#f6e5d7;white-space:normal;overflow-wrap:anywhere}\n'
     +'.api-rail[data-state="ready"]{border-color:'+(demo?'#d3a47470':'#8fd9bd55')+'}\n'
+    +'.skip-link{position:fixed;z-index:9999;left:12px;top:8px;transform:translateY(-150%);padding:11px 14px;background:#f6e4eb;color:#171720;border:2px solid #d97597;border-radius:8px;font-size:14px;font-weight:800;text-decoration:none}.skip-link:focus-visible{transform:translateY(0);outline:3px solid #b8a4fc;outline-offset:2px}\n'
     +'.home-direct-link{position:fixed;z-index:200;bottom:20px;right:20px;padding:12px 17px;border:1px solid #f0a3a0a3;border-radius:11px;background:linear-gradient(125deg,#de7682,#ab627c);color:#fff;box-shadow:0 14px 38px #000a;font-size:12px;font-weight:800;text-decoration:none}.home-direct-link:hover{filter:brightness(1.08)}\n'
     +'@media(max-width:600px){.demo-banner{min-height:45px;height:auto;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:3px 6px;font-size:9px;letter-spacing:.04em;padding:7px 12px;text-align:center}.shell{min-height:calc(100vh - 45px)}.sidebar{top:45px;height:calc(100vh - 45px)}.topbar{top:45px}}\n';
   return {html,js,css};
