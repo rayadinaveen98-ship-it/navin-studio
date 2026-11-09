@@ -72,9 +72,9 @@
 - [x] Real Cloudflare Access setup procedure documented only for reference: [runbook](M4C_STAGING_RUNBOOK.md).
 - [ ] **Paused by decision:** no Cloudflare account connection, card entry, staging Worker, deployed identity provider or real authenticated service at this stage. Retain code, do not deploy it.
 
-### M4-D — Source-backed LOCAL Studio Dashboard [ ] NEXT ACTIVE MILESTONE
+### M4-D — Source-backed LOCAL Studio Dashboard [~] D1 IMPLEMENTED / WINDOWS QA PENDING
 
-1. **D1 — Local runtime & source contract:** Runnable computer-local Control Room (loopback), separate LIVE PUBLIC SOURCE vs SIMULATED fixtures, refresh/error/empty/offline states, no credentials or unprotected online private URL.
+1. **D1 — Local runtime & source contract [x] code / [ ] owner acceptance:** Runnable Node 22+ loopback-only Control Room with two visibly separated modes (SIMULATED offline demo / PUBLIC GITHUB read-only). Eight canonical project IDs, on-demand evidence requests, source/outage status, zero approved APKs. **22/22 local Node tests passed and branch CI green; physical Windows and browser network acceptance pending.** [Implementation/QA](M4D1_LOCAL_IMPLEMENTATION_QA.md), [runnable source](../local/m4-studio-dev/README.md).
 2. **D2 — Project workspaces:** Eight genuinely mapped projects, individual overview, repository links, verifiable commits/PRs, owner-selected milestone drafts, clear “not observed” for missing facts.
 3. **D3 — Builds & QA Observatory:** Per-repository Actions/check/run history with exact commit and run URLs, evidence timestamps, no automatic interpretation of CI success as APK readiness. Android evidence only when sourced/verified.
 4. **D4 — Home & attention board:** Real source-backed recent activity, filtering, actionable evidence links, owner-chosen “today's focus,” clean information hierarchy.
