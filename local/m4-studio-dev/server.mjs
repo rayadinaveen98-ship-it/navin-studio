@@ -3,6 +3,7 @@ import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
 import {createSourceAdapter,projects} from './source-adapter.mjs';
 import {createWorkspaceSource} from './workspace-source.mjs';
+import {createQualitySource} from './quality-source.mjs';
 import {workspaceAssets} from './workspace-ui.mjs';
 import {localAssets} from './ui-assets.mjs';
 
@@ -19,6 +20,7 @@ function emit(res,{status=200,type='text/plain; charset=utf-8',body=''}){
 export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,clock=()=>new Date()}={}) {
   const adapter=createSourceAdapter({mode,fetchImpl,clock});
   const workspaces=createWorkspaceSource({mode,fetchImpl,clock});
+  const quality=createQualitySource({mode,fetchImpl,clock});
   const assets=localAssets(mode);
   const server=createServer(async(req,res)=>{
     const port=server.address()?.port;
@@ -72,6 +74,18 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
         const data=await workspaces.load(wsMatch[1]);
         emit(res,toJson(data,data.ok?200:404));
       }catch{emit(res,toJson({ok:false,error:'source_unavailable'},503));}
+      return;
+    }
+    const qualityMatch=/^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/quality$/.exec(url.pathname);
+    if(qualityMatch){
+      try{const data=await quality.runs(qualityMatch[1]);emit(res,toJson(data,data.ok?200:404));}
+      catch{emit(res,toJson({ok:false,error:'source_unavailable'},503));}
+      return;
+    }
+    const jobsMatch=/^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/quality\/runs\/([1-9][0-9]{0,15})\/jobs$/.exec(url.pathname);
+    if(jobsMatch){
+      try{const data=await quality.jobs(jobsMatch[1],jobsMatch[2]);emit(res,toJson(data,data.ok?200:404));}
+      catch{emit(res,toJson({ok:false,error:'source_unavailable'},503));}
       return;
     }
     const match=/^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/(source|ci)$/.exec(url.pathname);
