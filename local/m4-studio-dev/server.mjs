@@ -4,6 +4,8 @@ import {resolve} from 'node:path';
 import {createSourceAdapter,projects} from './source-adapter.mjs';
 import {createWorkspaceSource} from './workspace-source.mjs';
 import {createQualitySource} from './quality-source.mjs';
+import {createActivitySource} from './activity-source.mjs';
+import {homeAssets} from './home-ui.mjs';
 import {workspaceAssets} from './workspace-ui.mjs';
 import {localAssets} from './ui-assets.mjs';
 
@@ -21,6 +23,7 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
   const adapter=createSourceAdapter({mode,fetchImpl,clock});
   const workspaces=createWorkspaceSource({mode,fetchImpl,clock});
   const quality=createQualitySource({mode,fetchImpl,clock});
+  const activity=createActivitySource({mode,fetchImpl,clock});
   const assets=localAssets(mode);
   const server=createServer(async(req,res)=>{
     const port=server.address()?.port;
@@ -45,6 +48,15 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     if(url.pathname==='/control-room.css'){
       emit(res,{status:200,type:'text/css; charset=utf-8',body:assets.css});return;
     }
+    if(url.pathname==='/studio-home'){
+      emit(res,{status:200,type:'text/html; charset=utf-8',body:homeAssets.html});return;
+    }
+    if(url.pathname==='/studio-home.css'){
+      emit(res,{status:200,type:'text/css; charset=utf-8',body:homeAssets.css});return;
+    }
+    if(url.pathname==='/studio-home.js'){
+      emit(res,{status:200,type:'text/javascript; charset=utf-8',body:homeAssets.js});return;
+    }
     if(url.pathname==='/local.css'){
       emit(res,{status:200,type:'text/css; charset=utf-8',body:'/* local UI overrides are included in control-room.css */'});return;
     }
@@ -64,6 +76,11 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     }
     if(url.pathname==='/api/overview'){
       emit(res,toJson(adapter.overview()));return;
+    }
+    if(url.pathname==='/api/activity'){
+      try{emit(res,toJson(await activity.load()));}
+      catch{emit(res,toJson({ok:false,error:'source_unavailable'},503));}
+      return;
     }
     if(url.pathname==='/api/projects'){
       emit(res,toJson(adapter.directory()));return;
