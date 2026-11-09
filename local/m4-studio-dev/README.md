@@ -50,3 +50,15 @@ npm run dev:github
 ## Current milestone sequence
 
 M4-D1 through D5 built and reviewed in code/browser; Windows device and manual screen-reader acceptance remain separate. **M4-E1**: persisted on-device draft storage and introductory Vault UI. **Next M4-E2**: full project-linked decisions, milestone planning and notes workflows. **M4-E3**: Studio planning/calendar. **M4-E4**: backup/export/import and restore QA. Hosted private auth stays deferred to M4-G.
+
+## M4-E2 — Project Operations (implemented)
+
+Run `OPEN-PROJECT-OPERATIONS.bat` from the ZIP root or `start-operations.bat` from this folder. Open `http://127.0.0.1:4173/studio-operations`. Each of eight catalog projects now has a project-scoped local plan with three functioning record types: **tasks** (`backlog`, `in_progress`, `blocked`, `done`), **milestones** (`planned`, `active`, `completed`), and **decisions** (`proposed`, `accepted`, `deferred`, `rejected`). Each record has title, optional details/target date, timestamps and a bounded title/status update history. Create, edit, status-update, filter and delete actions are genuine on-device writes, never remote GitHub operations. The existing E1 draft file remains untouched and linked notes appear in E2 workspaces. Project source workspaces link to the associated local plans.
+
+Local storage uses a separate `project-operations.v1.json` in the same user-specific application data folder as the original Vault. Its **revision is independent** of the E1 draft revision. File replacement is atomic, malformed files are not overwritten, same-origin/optimistic write preconditions are required, and the local application is loopback-only. Up to 400 records and 40 title/status history events per record are supported. Once history capacity is reached, the app refuses further edits rather than silently deleting the oldest history. Deleting an item deletes that item's recorded history as well.
+
+**Limits:** plain unencrypted JSON, single-process mutation queue (no cross-process coordination), local user account may read all entries, no backups until E4, no multi-device sync, no online authentication. Local planning state does not imply signed APK/CI success or owner release approval. Never share this working folder's data directory or forward port 4173 onto a network.
+
+Endpoint summary: `GET /api/local/operations` and `/api/local/projects/:id/operations`, `POST /api/local/operations`, `PATCH /api/local/operations/:id`, `DELETE /api/local/operations/:id`, plus read-only local HTML/CSS/JS. Writes require `Origin` matching local port, `X-Navin-Local-Write: 1`, JSON content type and quoted `If-Match` revision. Every other existing Studio feature continues to work without new credentials, installs or subscriptions.
+
+E2 source/tests are in `project-operations.mjs`, `studio-operations.{html,css,js}`, and `tests/project-operations-*.test.mjs`. Run `npm run check` with Node 22+. Browser screenshots are from real Chromium rendering with simulated local API responses because direct loopback browsing is blocked in the testing environment. Physical Windows/browser and screen-reader acceptance are not claimed.
