@@ -1,7 +1,9 @@
 import {createServer} from 'node:http';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
-import {createSourceAdapter} from './source-adapter.mjs';
+import {createSourceAdapter,projects} from './source-adapter.mjs';
+import {createWorkspaceSource} from './workspace-source.mjs';
+import {workspaceAssets} from './workspace-ui.mjs';
 import {localAssets} from './ui-assets.mjs';
 
 const headers={
@@ -16,6 +18,7 @@ function emit(res,{status=200,type='text/plain; charset=utf-8',body=''}){
 }
 export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,clock=()=>new Date()}={}) {
   const adapter=createSourceAdapter({mode,fetchImpl,clock});
+  const workspaces=createWorkspaceSource({mode,fetchImpl,clock});
   const assets=localAssets(mode);
   const server=createServer(async(req,res)=>{
     const port=server.address()?.port;
@@ -43,6 +46,17 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     if(url.pathname==='/local.css'){
       emit(res,{status:200,type:'text/css; charset=utf-8',body:'/* local UI overrides are included in control-room.css */'});return;
     }
+    if(url.pathname==='/workspace.css'){
+      emit(res,{status:200,type:'text/css; charset=utf-8',body:workspaceAssets.css});return;
+    }
+    if(url.pathname==='/workspace.js'){
+      emit(res,{status:200,type:'text/javascript; charset=utf-8',body:workspaceAssets.js});return;
+    }
+    const projectRoute=/^\/workspace\/([a-z0-9]+(?:-[a-z0-9]+)*)$/.exec(url.pathname);
+    if(projectRoute){
+      if(!projects.some(p=>p.id===projectRoute[1])){emit(res,toJson({ok:false,error:'not_found'},404));return;}
+      emit(res,{status:200,type:'text/html; charset=utf-8',body:workspaceAssets.html});return;
+    }
     if(url.pathname==='/api/me'){
       emit(res,toJson(adapter.me()));return;
     }
@@ -51,6 +65,14 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     }
     if(url.pathname==='/api/projects'){
       emit(res,toJson(adapter.directory()));return;
+    }
+    const wsMatch=/^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/workspace$/.exec(url.pathname);
+    if(wsMatch){
+      try{
+        const data=await workspaces.load(wsMatch[1]);
+        emit(res,toJson(data,data.ok?200:404));
+      }catch{emit(res,toJson({ok:false,error:'source_unavailable'},503));}
+      return;
     }
     const match=/^\/api\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/(source|ci)$/.exec(url.pathname);
     if(match){
