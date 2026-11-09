@@ -1,14 +1,14 @@
 {
   "name": "navin-studio-local-control-room",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
-  "description": "Local Studio Control Room, Project Workspaces, Builds & QA, Studio Home and on-device Draft Vault",
+  "description": "Local Studio Control Room and on-device project operations \u2014 no cloud",
   "scripts": {
     "dev": "node server.mjs",
     "dev:demo": "node server.mjs",
     "dev:github": "node server.mjs --github",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check server.mjs && node --check ui-assets.mjs && node --check source-adapter.mjs && node --check workspace-source.mjs && node --check quality-source.mjs && node --check workspace-ui.mjs && node --check workspace.js && node --check activity-source.mjs && node --check home-ui.mjs && node --check studio-home.js && node --check local-store.mjs && node --check vault-ui.mjs && node --check studio-vault.js && node --test tests/*.test.mjs"
+    "check": "node --check server.mjs && node --check ui-assets.mjs && node --check source-adapter.mjs && node --check workspace-source.mjs && node --check quality-source.mjs && node --check workspace-ui.mjs && node --check workspace.js && node --check activity-source.mjs && node --check home-ui.mjs && node --check studio-home.js && node --check local-store.mjs && node --check vault-ui.mjs && node --check studio-vault.js && node --check project-operations.mjs && node --check operations-ui.mjs && node --check studio-operations.js && node --test tests/*.test.mjs"
   }
 }
