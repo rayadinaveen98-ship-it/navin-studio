@@ -87,7 +87,8 @@ async function run(){
   await snap('desktop-mid-animation.png');
   await until('document.querySelector("#studio-intro-shell")?.hidden===true',8500);
   check(await evaluate('!document.querySelector("header.site-header").inert && !document.getElementById("main-content").inert'),'Main website remained inert');
-  check(await evaluate('document.getElementById("hero-title")?.textContent.includes("NAVIN")'),'Homepage content not visible');
+  check(await evaluate('document.getElementById("v4-hero-title")?.textContent.includes("living worlds")'),'V4 homepage headline not visible');
+  check(await evaluate('document.querySelectorAll("#view-home .atlas-node").length===8'),'V4 Universe Atlas is missing known projects');
   await snap('desktop-real-homepage.png');
 
   await openSite();
@@ -105,7 +106,7 @@ async function run(){
   check(await evaluate('document.querySelector("#studio-intro-shell").hidden===true'),'Internal navigation replayed opening');
 
   // Project story is a first-class, shareable public page, not a small modal.
-  await evaluate('document.querySelector("[data-project=backlot]").click()');
+  await evaluate('document.querySelector("#explore-grid [data-project=backlot]").click()');
   await until('location.hash==="#project/backlot" && document.querySelector("#view-project")?.classList.contains("is-active")',2500);
   check(await evaluate('document.querySelector("#project-story-title")?.textContent==="Backlot"'),'Wrong desktop project heading');
   check(await evaluate('document.querySelectorAll("#view-project .px-facet").length===3'),'Missing creative-focus sections');
@@ -141,7 +142,8 @@ async function run(){
   check(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),'Horizontal overflow on mobile');
   await snap('mobile-real-homepage.png');
 
-  await evaluate('document.querySelector("[data-project=frame-one]").click()');
+  await evaluate('document.querySelector("[data-route=creations]").click()');
+  await evaluate('document.querySelector("#explore-grid [data-project=frame-one]").click()');
   await until('location.hash==="#project/frame-one" && document.querySelector("#project-story-title")?.textContent==="Frame One"',2000);
   check(await evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),'Project page caused mobile horizontal overflow');
   check(await evaluate('document.querySelector("#view-project .px-hero")?.getBoundingClientRect().width <= window.innerWidth'),'Project hero clipped on mobile');

@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""Regenerate the standalone public site using only Python's standard library."""
+"""Regenerate the public site using only Python's standard library.
+
+M3 editorial project pages and the release gate are preserved; the reviewed V4
+public Home view is integrated in a deterministic post-bundle transform.
+"""
 from pathlib import Path
 import json, re, sys
+from v4.integrate import integrate
 ROOT=Path(__file__).resolve().parent
 catalog=json.loads((ROOT/'data/projects.json').read_text(encoding='utf-8'))
 releases=json.loads((ROOT/'data/releases.json').read_text(encoding='utf-8'))
@@ -16,16 +21,16 @@ def refresh_json(source,variable,data):
     return re.sub(expression,lambda m:m.group(1)+replacement+m.group(2),source,count=1,flags=re.S)
 src=refresh_json(src,'BUNDLED_CATALOG',catalog)
 src=refresh_json(src,'BUNDLED_RELEASES',releases)
-# Public project stories share the validated catalog and route state with the shell.
 src+='\n'+(ROOT/'src/project_experience.js').read_text(encoding='utf-8')
 site=template.replace('{{STYLES}}',css).replace('{{APP}}',src)
 if '{{STYLES}}' in site or '{{APP}}' in site or '<script>' not in site:
     raise SystemExit('Template markers missing or nested incorrectly.')
+site=integrate(site,ROOT)
 output=ROOT/'index.html'
 if '--check' in sys.argv:
     if not output.is_file() or output.read_text(encoding='utf-8')!=site:
         raise SystemExit('Build is stale. Run python3 site/build.py and commit changes.')
-    print('PASS: output is reproducible')
+    print('PASS: V3 project pages and V4 public homepage build are reproducible')
 else:
     output.write_text(site,encoding='utf-8')
     print(f'Wrote {output}: {len(site.encode("utf-8"))} bytes')

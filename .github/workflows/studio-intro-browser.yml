@@ -24,6 +24,7 @@ jobs:
         run: |
           python3 site/build.py --check
           node --check site/src/app.js
+          node --check site/v4/home.js
           node --check site/tests/intro_browser_smoke.mjs
       - name: Boot website and test cinematic intro through Chrome DevTools Protocol
         shell: bash
