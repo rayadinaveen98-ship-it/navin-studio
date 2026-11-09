@@ -10,6 +10,8 @@ import {workspaceAssets} from './workspace-ui.mjs';
 import {localAssets} from './ui-assets.mjs';
 import {createLocalStore,VaultError} from './local-store.mjs';
 import {vaultAssets} from './vault-ui.mjs';
+import {createProjectOperations} from './project-operations.mjs';
+import {operationsAssets} from './operations-ui.mjs';
 
 const headers={
   'Cache-Control':'no-store, private, max-age=0','Pragma':'no-cache',
@@ -36,6 +38,7 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
   const activity=createActivitySource({mode,fetchImpl,clock});
   const assets=localAssets(mode);
   const vault=createLocalStore({dataDir,clock});
+  const operations=createProjectOperations({dataDir,clock});
   const server=createServer(async(req,res)=>{
     const port=server.address()?.port;
     const host='127.0.0.1:'+port;
@@ -48,7 +51,7 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     }
     // Local writes are opt-in, same-origin JSON requests with a custom header and
     // optimistic revision; never accept cross-origin forms or plain fetch requests.
-    const mutation=!req.url.includes('?') ? /^\/api\/local\/drafts(?:\/([0-9a-f-]{36}))?$/.exec(req.url) : null;
+    const mutation=!req.url.includes('?') ? /^\/api\/local\/(drafts|operations)(?:\/([0-9a-f-]{36}))?$/.exec(req.url) : null;
     if(req.method!=='GET' && mutation){
       if(req.headers.origin!==origin||req.headers['x-navin-local-write']!=='1'||
         req.headers['sec-fetch-site']==='cross-site'){
@@ -58,14 +61,16 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
       const match=typeof revHeader==='string'?/^"([0-9]{1,12})"$/.exec(revHeader):null;
       if(!match){emit(res,toJson({ok:false,error:'revision_required'},428));return;}
       const revision=Number(match[1]);
-      const id=mutation[1];
+      const type=mutation[1];
+      const store=type==='operations'?operations:vault;
+      const id=mutation[2];
       try{
         let result;
-        if(req.method==='POST'&&!id)result=await vault.create(revision,await parseLocalJson(req));
-        else if(req.method==='PATCH'&&id)result=await vault.update(revision,id,await parseLocalJson(req));
+        if(req.method==='POST'&&!id)result=await store.create(revision,await parseLocalJson(req));
+        else if(req.method==='PATCH'&&id)result=await store.update(revision,id,await parseLocalJson(req));
         else if(req.method==='DELETE'&&id){
           if((req.headers['content-length']&&req.headers['content-length']!=='0')||req.headers['transfer-encoding'])throw new VaultError('unexpected_body',400);
-          result=await vault.delete(revision,id);
+          result=await store.delete(revision,id);
         }else{emit(res,toJson({ok:false,error:'operation_not_allowed'},405));return;}
         emit(res,toJson(result,req.method==='POST'?201:200));
       }catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'vault_unavailable'},e instanceof VaultError?e.status:503));}
@@ -84,6 +89,18 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     }
     if(url.pathname==='/control-room.css'){
       emit(res,{status:200,type:'text/css; charset=utf-8',body:assets.css});return;
+    }
+    if(url.pathname==='/studio-operations'||/^\/studio-operations\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(url.pathname)){
+      if(url.pathname!=='/studio-operations'&&!projects.some(p=>url.pathname==='/studio-operations/'+p.id)){
+        emit(res,toJson({ok:false,error:'project_not_found'},404));return;
+      }
+      emit(res,{status:200,type:'text/html; charset=utf-8',body:operationsAssets.html});return;
+    }
+    if(url.pathname==='/studio-operations.css'){
+      emit(res,{status:200,type:'text/css; charset=utf-8',body:operationsAssets.css});return;
+    }
+    if(url.pathname==='/studio-operations.js'){
+      emit(res,{status:200,type:'text/javascript; charset=utf-8',body:operationsAssets.js});return;
     }
     if(url.pathname==='/studio-vault'){
       emit(res,{status:200,type:'text/html; charset=utf-8',body:vaultAssets.html});return;
@@ -126,6 +143,17 @@ export function createStudioServer({mode='fixture',fetchImpl=globalThis.fetch,cl
     if(url.pathname==='/api/local/status'||url.pathname==='/api/local/drafts'){
       try{emit(res,toJson(url.pathname==='/api/local/status'?await vault.status():await vault.list()));}
       catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'vault_unavailable'},503));}
+      return;
+    }
+    if(url.pathname==='/api/local/operations'){
+      try{emit(res,toJson(await operations.list()));}
+      catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'operations_unavailable'},e instanceof VaultError?e.status:503));}
+      return;
+    }
+    const opProjectRoute=/^\/api\/local\/projects\/([a-z0-9]+(?:-[a-z0-9]+)*)\/operations$/.exec(url.pathname);
+    if(opProjectRoute){
+      try{emit(res,toJson(await operations.list(opProjectRoute[1])));}
+      catch(e){emit(res,toJson({ok:false,error:e instanceof VaultError?e.code:'operations_unavailable'},e instanceof VaultError?e.status:503));}
       return;
     }
     if(url.pathname==='/api/activity'){
