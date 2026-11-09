@@ -27,7 +27,10 @@ function renderFocus(){const byId=new Map(catalog.map(p=>[p.id,p]));selected=sel
 }
 function toggleFocus(id){if(!catalog.some(p=>p.id===id))return;const exists=selected.includes(id);
  if(exists)selected=selected.filter(x=>x!==id);else if(selected.length<3)selected=[...selected,id];else return;
- const saved=saveFocus();renderFocus();if(!saved)setStatus('error','Browser storage unavailable','Your focus is still selected for this page session, but cannot be saved in this browser.');
+ const restoreFocus=document.activeElement?.matches?.('[data-choice]')===true;
+ const saved=saveFocus();renderFocus();
+ if(restoreFocus){const next=Array.from($('focusChoices').querySelectorAll('[data-choice]')).find(b=>b.dataset.choice===id);next?.focus({preventScroll:true});}
+ if(!saved)setStatus('error','Browser storage unavailable','Your focus is still selected for this page session, but cannot be saved in this browser.');
 }
 function renderCatalog(){const html=catalog.map(p=>`<a class="project-nav-item" href="/workspace/${encodeURIComponent(p.id)}"><span class="project-nav-symbol" aria-hidden="true">${safeText(p.name.slice(0,1).toUpperCase())}</span><span class="project-nav-title">${safeText(p.name)}</span></a>`).join('');$('sideProjects').innerHTML=html;}
 function validActivity(v){return v?.ok===true&&v.mode===mode&&v.source_count===catalog.length&&Array.isArray(v.sources)&&v.sources.length===catalog.length&&Array.isArray(v.records)&&v.records.length<=catalog.length&&v.release_ready===null;}
