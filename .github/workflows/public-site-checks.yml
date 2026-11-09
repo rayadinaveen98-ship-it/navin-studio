@@ -31,6 +31,9 @@ jobs:
         run: |
           node --check site/src/app.js
           node --check site/src/project_experience.js
+          node --check site/v4/home.js
+      - name: Validate V4 Home integration and preserved project routes
+        run: python3 site/tests/v42_integration.py
       - name: Test release watcher, digest gate and publish allowlist
         run: python3 -m unittest discover -s site/tools/tests -v
       - name: Audit exact approved GitHub release assets
