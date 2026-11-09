@@ -97,12 +97,15 @@
 - [ ] Provenance validation, rate-limit/unavailable/stale-source states, restore/import/export verification, offline state consistency and rollback.
 - [ ] Manual release-gate audit; no APK links until exact signed artifact, QA and owner approval are confirmed.
 
-### M4-G — Private online hosting and authentication [ ] DEFERRED TO END
+### M4-G — Vercel protected web preview and secure hosting [~] PROVIDER DIRECTION SELECTED / NOT DEPLOYED
 
-- [ ] Re-evaluate **genuinely zero-spend, card-free** hosting/auth when the finished private dashboard actually needs remote access, with fresh policy and pricing verification.
-- [ ] Owner explicitly approves provider, account creation, scope and cost safeguards.
-- [ ] Deploy only under a real server-side owner-auth boundary; verify unauthorized routes, previews, sessions, logout, CSRF for any future writes, and audit logs.
-- [ ] No public GitHub Pages admin password, hidden route, exposed private metadata or fake security claims.
+- [x] Evaluate existing connected Vercel Hobby workspace as the zero-spend first-hosting option. As of 2026-09-09, free Vercel Authentication can protect **All Deployments**, including production. [ADR-006: Vercel-first protected personal preview](M4G_VERCEL_PROTECTED_PREVIEW_DECISION.md).
+- [ ] Build and verify a Vercel-compatible **read-only** frontend/serverless API preview using allowlisted public repo data only; leave the existing public GitHub Pages website unchanged.
+- [ ] Before deploying usable routes, configure Vercel Authentication → **All Deployments** and verify that all anonymous preview/production/API/asset URLs are denied. No Vercel project/deployment has yet been created for NAVIN STUDIO.
+- [ ] Re-architect E1–E4 persistence: Vercel Functions cannot preserve the current disk-based JSON stores; use approved card-free durable storage and independent server-side owner authorization before allowing hosted edits, restores or private data migration.
+- [ ] Keep the existing local backend and user-data files authoritative until verified migration, backup and manual acceptance. No credentials, sensitive records or release authorization in public previews.
+- [ ] Respect **Hobby personal non-commercial use** restriction. Evaluate an eligible service/plan before any commercial Studio deployment. Never enter card details or activate paid services without explicit owner approval.
+- [ ] Perform real deployed security tests, physical Windows/Android QA and owner visual approval before production release.
 
 ## M5 — Studio Intelligence & Integrations [ ] FUTURE
 
