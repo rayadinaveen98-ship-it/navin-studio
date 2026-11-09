@@ -73,4 +73,4 @@ M4-D5: end-to-end product QA, keyboard/accessibility and owner-approved design r
 
 The local Control Room, Studio Home and Project Workspaces now provide a keyboard-visible **Skip to main content** action. Dynamic priority selections restore focus to their buttons, and changing the active project focuses its new heading. Nine new automated checks have been added to the local test suite; all 98 tests pass. Chromium smoke tests cover three views at five widths with browser API fixtures and semantic focus checks.
 
-See [docs/M4D5_AUDIT.md](../../docs/M4D5_AUDIT.md) after this review package is synchronized. Real Windows/live-network, physical Android and manual screen-reader acceptance **remain pending**. The local server still uses loopback only; no cloud login is claimed.
+See [`docs/M4D5_AUDIT.md`](../../docs/M4D5_AUDIT.md) after this review package is synchronized. Real Windows/live-network, physical Android and manual screen-reader acceptance **remain pending**. The local server still uses loopback only; no cloud login is claimed.
