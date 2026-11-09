@@ -9,7 +9,7 @@
  <aside class="rail vault-rail" aria-label="Studio navigation"><a class="brand" href="/studio-home"><span class="brand-glyph" aria-hidden="true"><i></i><i></i><i></i></span><span>NAVIN <em>STUDIO</em></span></a>
  <a class="back-to" href="/studio-home"><span aria-hidden="true">←</span> Studio Home</a>
  <div class="rail-kicker">STUDIO OPERATIONS / <span>LOCAL</span></div>
- <nav class="vault-navigation" aria-label="Studio views"><a href="/studio-home">◈ <span>Studio Home</span></a><a href="/studio-vault" aria-current="page">▤ <span>Local Vault</span></a><a href="/workspace/backlot">▦ <span>Project Workspaces</span></a><a href="/">◇ <span>Control Room</span></a></nav>
+ <nav class="vault-navigation" aria-label="Studio views"><a href="/studio-home">◈ <span>Studio Home</span></a><a href="/studio-operations">◎ <span>Project Operations</span></a><a href="/studio-vault" aria-current="page">▤ <span>Local Vault</span></a><a href="/workspace/backlot">▦ <span>Project Workspaces</span></a><a href="/">◇ <span>Control Room</span></a></nav>
  <div class="rail-bottom"><div class="rail-accent"></div><strong>LOCAL. REAL. YOURS.</strong><span>Drafts are not synced or encrypted. Anyone with access to this computer account may be able to read them. Backups arrive in M4-E4.</span></div>
  </aside>
  <div class="content-shell"><header class="topbar vault-topbar"><div class="breadcrumb"><span class="eyebrow">NAVIN STUDIO</span><span class="slash">/</span><strong>LOCAL VAULT</strong></div><div class="topbar-actions"><span class="mode-chip">ON-DEVICE · NOT SYNCED</span><a class="refresh-btn" href="/studio-home">Studio Home ↗</a></div></header>
@@ -18,7 +18,7 @@
   <div class="vault-state" id="vaultState" data-state="loading" role="status" aria-live="polite"><span class="vault-state-dot" aria-hidden="true"></span><div><strong id="vaultStatusTitle">Opening local archive</strong><p id="vaultStatusDetail">Reading on-device storage without connecting to the internet.</p></div><button id="vaultReload" class="vault-quiet" type="button">Refresh</button></div>
   <section class="vault-stats" aria-label="Local storage summary"><div><small>LOCAL DRAFTS</small><strong id="vaultCount">—</strong><span>Saved on this computer</span></div><div><small>STORAGE MODE</small><strong class="vault-stat-word">On device</strong><span>Private-server login not enabled</span></div><div><small>CLOUD BACKUP</small><strong class="vault-stat-word">Not active</strong><span>Export and restore planned for E4</span></div></section>
   <div class="vault-workspace-grid">
-   <section class="vault-compose" aria-labelledby="composeHeading"><div class="vault-panel-kicker">CAPTURE / 02</div><h2 id="composeHeading">Create a draft<span>.</span></h2><p class="vault-description">Choose the relevant Studio project. Save a real draft now; expand it into a full project workflow in M4-E2.</p>
+   <section class="vault-compose" aria-labelledby="composeHeading"><div class="vault-panel-kicker">CAPTURE / 02</div><h2 id="composeHeading">Create a draft<span>.</span></h2><p class="vault-description">Choose the relevant Studio project. Save a real note or draft here; manage tasks, milestones and decision states in Project Operations.</p>
     <form id="vaultForm"><label for="vaultProject">Project</label><select id="vaultProject" required><option value="">Loading projects…</option></select>
       <label for="vaultType">Draft category</label><select id="vaultType"><option value="note">Note</option><option value="decision">Decision draft</option><option value="plan">Plan draft</option></select>
       <label for="vaultTitle">Title</label><input id="vaultTitle" required maxlength="140" placeholder="What needs to be captured?" autocomplete="off">
@@ -30,6 +30,6 @@
     <ul id="vaultList" class="vault-records" aria-live="polite"><li class="vault-empty">Reading drafts…</li></ul>
    </section>
   </div>
-  <div class="vault-footnote"><span aria-hidden="true">◇</span><div><strong>Why this is a foundation, not the full Studio Operations release</strong><p>We're validating safe local persistence and real create/edit/delete actions first. Detailed decisions, milestones, task planning, and manual backup/restore arrive in E2–E4.</p></div></div>
+  <div class="vault-footnote"><span aria-hidden="true">◇</span><div><strong>Why this is a foundation, not the full Studio Operations release</strong><p>We're validating safe local persistence and real create/edit/delete actions first. Tasks, milestones and decision tracking are in Project Operations; manual backup and restore arrive in E4.</p></div></div>
   <footer class="workspace-footer"><span>NAVIN STUDIO / LOCAL VAULT / M4-E1</span><span>NO CLOUD · NO GITHUB WRITES · NO ONLINE LOGIN</span></footer>
  </main></div></div></body></html>
