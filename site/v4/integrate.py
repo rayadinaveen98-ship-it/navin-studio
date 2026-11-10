@@ -23,4 +23,10 @@ def integrate(site: str, root: Path) -> str:
     # A separate script avoids interfering with V3 runtime initialization order;
     # project data script is application/json, never executable.
     site=site[:pos+len('</script>')]+'\n<script>\n'+js+'\n</script>'+site[pos+len('</script>'):]
+    # V4.3 project enhancement loads after the M3 route function and V4.2 Home.
+    worlds_css=(base/'worlds.css').read_text(encoding='utf-8')
+    worlds_js=(base/'worlds.js').read_text(encoding='utf-8')
+    site=site.replace('</style>','\n/* V4.3 Project Worlds public enhancement */\n'+worlds_css+'\n</style>',1)
+    last=site.rfind('</script>')
+    site=site[:last+len('</script>')]+'\n<script>\n'+worlds_js+'\n</script>'+site[last+len('</script>'):]
     return site

@@ -27,10 +27,13 @@ jobs:
         run: python3 site/build.py --check
       - name: Verify catalog and approval manifest
         run: python3 site/tests/validate.py
+      - name: Validate V4.3 Project Worlds and keyboard contracts
+        run: python3 -m unittest discover -s site/tests -p 'v43_worlds.py' -v
       - name: Verify JavaScript syntax
         run: |
           node --check site/src/app.js
           node --check site/src/project_experience.js
+          node --check site/v4/worlds.js
           node --check site/v4/home.js
       - name: Validate V4 Home integration and preserved project routes
         run: python3 site/tests/v42_integration.py
